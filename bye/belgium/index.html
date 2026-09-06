@@ -1,0 +1,891 @@
+<!DOCTYPE html>
+<html lang="fr" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Analyse Critique de la Citoyenneté en Belgique</title>
+    <!-- Tailwind CSS via CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Chart.js via CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            50: '#f8fafc',
+                            100: '#f1f5f9',
+                            200: '#e2e8f0',
+                            600: '#2563eb',
+                            700: '#1d4ed8',
+                            800: '#1e293b',
+                            900: '#0f172a'
+                        },
+                        amberAccent: '#d97706',
+                        crimsonAccent: '#dc2626',
+                        tealAccent: '#0d9488'
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        /* Custom styles for chart container responsive constraints */
+        .chart-container {
+            position: relative;
+            width: 100%;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+            height: 320px;
+            max-height: 400px;
+        }
+        @media (min-width: 768px) {
+            .chart-container {
+                height: 360px;
+            }
+        }
+        .tab-btn.active {
+            border-bottom: 3px solid #1d4ed8;
+            color: #1d4ed8;
+            font-weight: 700;
+        }
+    </style>
+</head>
+<!-- Chosen Palette: Civic Warm Harmony (Slate Navy, Deep Slate 800, Warm Amber Gold, Soft Neutral Background) -->
+<!-- Application Structure Plan: The application is structured into 6 thematic modules plus a central key indicators hero banner and an interactive exploration tool. This non-linear thematic organization transforms the academic report into an exploratory dashboard. Users can navigate chronologically through issues (nationality, voting, social rights, digital gap, party system, citizen innovation) or query specific metrics and legal mechanisms through interactive filters, chart switchers, and simulated cases. -->
+<!-- Visualization & Content Choices:
+     1. 2024 Election Abstention Impact -> Goal: Compare voter turnout before/after compulsory vote abolition -> Method: Chart.js Bar Chart (Flandre vs Wallonie vs Bruxelles) -> Interaction: Dynamic tooltip & breakdown -> Justification: Clearly displays the 28.6 point collapse in Flanders.
+     2. Demographic Profile of Flemish Abstention -> Goal: Show inequality in non-voting -> Method: Chart.js Doughnut Chart -> Interaction: Hover highlight -> Justification: Highlights youth (53%) and low-education (22%) overrepresentation.
+     3. Digital Exclusion Barometer -> Goal: Represent 40% vulnerability breakdown -> Method: Chart.js Horizontal Bar Chart -> Interaction: Tooltip values -> Justification: Visualizes intersectionality (education, health, employment).
+     4. Inburgering Budget Growth -> Goal: Display Flemish civic integration investment -> Method: Chart.js Line Chart (2004-2013) -> Interaction: Hover points -> Justification: Illustrates the increase from 8.85M€ to 57.9M€.
+     5. Deliberative & Judicial Workflows -> Goal: Explain Ostbelgien & Klimaatzaak -> Method: Interactive HTML/CSS Cards & Flow Diagrams -> Interaction: Step clicks -> Justification: Replaces complex text with step-by-step visual logic without SVG/Mermaid. -->
+<!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+<body class="bg-[#FAF9F6] text-slate-800 font-sans antialiased min-h-screen flex flex-col">
+
+    <!-- Header Navigation -->
+    <header class="sticky top-0 z-50 bg-slate-900 text-white shadow-md border-b border-slate-800">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-16">
+                <div class="flex items-center space-x-3">
+                    <span class="text-2xl">🇧🇪</span>
+                    <div>
+                        <h1 class="text-lg font-bold tracking-tight leading-tight">Citoyenneté en Belgique</h1>
+                        <p class="text-xs text-slate-400">Observatoire de l'exercice, des mutations et des fractures démocratiques</p>
+                    </div>
+                </div>
+                <div class="hidden md:flex items-center space-x-4">
+                    <button onclick="scrollToSection('hero')" class="text-xs text-slate-300 hover:text-white px-2 py-1">Vue D'ensemble</button>
+                    <button onclick="scrollToSection('simulators')" class="text-xs bg-amber-600 hover:bg-amber-500 text-white font-medium px-3 py-1.5 rounded-md transition">Outils Interactifs</button>
+                </div>
+            </div>
+            <!-- Sub-navigation tabs -->
+            <div class="flex overflow-x-auto no-scrollbar space-x-6 border-t border-slate-800 text-xs sm:text-sm py-2">
+                <button onclick="showTab('sec1')" id="btn-sec1" class="tab-btn active whitespace-nowrap pb-1">1. Nationalité & Intégration</button>
+                <button onclick="showTab('sec2')" id="btn-sec2" class="tab-btn whitespace-nowrap pb-1">2. Droits Politiques & 2024</button>
+                <button onclick="showTab('sec3')" id="btn-sec3" class="tab-btn whitespace-nowrap pb-1">3. Pilarisation & Social</button>
+                <button onclick="showTab('sec4')" id="btn-sec4" class="tab-btn whitespace-nowrap pb-1">4. Fracture Numérique</button>
+                <button onclick="showTab('sec5')" id="btn-sec5" class="tab-btn whitespace-nowrap pb-1">5. Particratie & Crise</button>
+                <button onclick="showTab('sec6')" id="btn-sec6" class="tab-btn whitespace-nowrap pb-1">6. Innovations & Justice</button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Hero Section with Key Indicators -->
+    <section id="hero" class="bg-slate-800 text-white py-8 border-b border-slate-700">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="mb-6">
+                <span class="bg-blue-900 text-blue-200 text-xs font-semibold px-2.5 py-0.5 rounded border border-blue-700">Rapport d'Analyse Synthétique & Synthèse Critiques</span>
+                <h2 class="text-2xl sm:text-3xl font-extrabold text-white mt-2">L'Exercice de la Citoyenneté en Belgique : Entre Fragmentations, Contraintes et Réinventions</h2>
+                <p class="text-slate-300 text-sm sm:text-base mt-2 max-w-4xl">
+                    Entre compromis consociatifs historiques, émergence de la particratie et mutations récentes (abolition du vote obligatoire en Flandre, activisme judiciaire climatique), découvrez l'analyse multidimensionnelle de la communauté politique belge.
+                </p>
+            </div>
+
+            <!-- Key Metrics Grid -->
+            <div class="grid grid-cols-2 md:grid-cols-5 gap-3 sm:gap-4 mt-6">
+                <div class="bg-slate-900/80 p-3 sm:p-4 rounded-lg border border-slate-700">
+                    <p class="text-slate-400 text-xs">Participation Flandre 2024</p>
+                    <p class="text-xl sm:text-2xl font-bold text-red-400 mt-1">63,6 %</p>
+                    <p class="text-[10px] text-slate-400 mt-1">🔻 -28,6 pts (Vote optionnel)</p>
+                </div>
+                <div class="bg-slate-900/80 p-3 sm:p-4 rounded-lg border border-slate-700">
+                    <p class="text-slate-400 text-xs">Vulnérabilité Numérique</p>
+                    <p class="text-xl sm:text-2xl font-bold text-amber-400 mt-1">40 %</p>
+                    <p class="text-[10px] text-slate-400 mt-1">4,5M personnes touchées</p>
+                </div>
+                <div class="bg-slate-900/80 p-3 sm:p-4 rounded-lg border border-slate-700">
+                    <p class="text-slate-400 text-xs">Vote Étrangers Communales</p>
+                    <p class="text-xl sm:text-2xl font-bold text-blue-400 mt-1">~15 %</p>
+                    <p class="text-[10px] text-slate-400 mt-1">Taux d'inscription très faible</p>
+                </div>
+                <div class="bg-slate-900/80 p-3 sm:p-4 rounded-lg border border-slate-700">
+                    <p class="text-slate-400 text-xs">Confiance Démocratie</p>
+                    <p class="text-xl sm:text-2xl font-bold text-teal-400 mt-1">55 %</p>
+                    <p class="text-[10px] text-slate-400 mt-1">VS 87% satisfaction de vie</p>
+                </div>
+                <div class="bg-slate-900/80 p-3 sm:p-4 rounded-lg border border-slate-700 col-span-2 md:col-span-1">
+                    <p class="text-slate-400 text-xs">Objectif Climat 2030</p>
+                    <p class="text-xl sm:text-2xl font-bold text-emerald-400 mt-1">-55 %</p>
+                    <p class="text-[10px] text-slate-400 mt-1">Arrêt Klimaatzaak (2023)</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Main Content Container -->
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 flex-grow w-full">
+
+        <!-- Interactive Search & Quick Filter Bar -->
+        <div class="bg-white p-4 rounded-xl shadow-sm border border-slate-200 mb-8 flex flex-col md:flex-row md:items-center justify-between gap-4">
+            <div class="flex items-center space-x-2">
+                <span class="text-lg">🔍</span>
+                <span class="text-sm font-semibold text-slate-700">Recherche thématique rapide :</span>
+            </div>
+            <div class="flex-grow max-w-lg">
+                <input type="text" id="searchInput" onkeyup="filterContent()" placeholder="Tapez un mot-clé (ex: Inburgering, Snelbelg, Klimaatzaak, 12bis, EPN...)" class="w-full text-sm px-3 py-2 border border-slate-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+            </div>
+            <div id="searchResultsCount" class="text-xs text-slate-500 hidden font-medium"></div>
+        </div>
+
+        <!-- SECTION 1: Nationalité & Paradigmes d'Intégration -->
+        <section id="sec1" class="section-block space-y-6">
+            <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200">
+                <div class="border-b border-slate-100 pb-4 mb-4">
+                    <div class="flex items-center space-x-2">
+                        <span class="bg-blue-100 text-blue-800 text-xs font-bold px-2 py-1 rounded">Module 1</span>
+                        <h3 class="text-xl font-bold text-slate-900">Les Frontières Formelles de la Communauté Politique : Nationalité & Intégration</h3>
+                    </div>
+                    <p class="text-sm text-slate-600 mt-2">
+                        Ce module explore les conditions juridiques d'accès à la nationalité belge et le grand écart institutionnel entre les politiques d'intégration régionales. Il illustre le passage historique d'un modèle libéral fondé sur la présomption d'intégration à un modèle restrictif exigeant des épreuves formelles préalables.
+                    </p>
+                </div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    <!-- Left Column: Legal Shift & Code Article 12bis -->
+                    <div class="space-y-4">
+                        <h4 class="font-bold text-slate-800 text-base flex items-center">
+                            <span class="mr-2">📜</span> L'Évolution Législative du Code de la Nationalité
+                        </h4>
+                        <p class="text-sm text-slate-700 leading-relaxed">
+                            Historiquement restrictive jusqu'en 1984, la législation sur la nationalité a connu une libéralisation majeure en 2000 avec la <strong>"loi Snelbelg"</strong>, qui instaurait une présomption d'intégration basée sur la seule durée de résidence légale (7 ans). 
+                        </p>
+                        <p class="text-sm text-slate-700 leading-relaxed">
+                            Cependant, la <strong>réforme majeure de 2012</strong> a marqué un retour aux « épreuves d'intégration ». La nationalité est devenue le couronnement d'un parcours réussi, soumise à l'<strong>Article 12bis</strong> et à un droit d'enregistrement de <strong>1 000 €</strong>.
+                        </p>
+
+                        <!-- Legal Modalities Interactive Accordion/Cards -->
+                        <div class="bg-slate-50 p-4 rounded-lg border border-slate-200 space-y-3">
+                            <p class="text-xs font-bold text-slate-700 uppercase tracking-wider">Régimes de la Déclaration de Nationalité (Art. 12bis)</p>
+                            
+                            <div class="p-3 bg-white rounded border border-slate-200 text-xs space-y-1">
+                                <p class="font-bold text-blue-700">1. Procédure Standard (5 ans de résidence)</p>
+                                <p class="text-slate-600">Résidence ininterrompue de 5 ans + Langue (Niveau A2) + Intégration sociale (400h formation ou diplôme secondaire sup) + Participation économique (468 jours de travail salarié ou 6 trimestres cotisations indépendant).</p>
+                            </div>
+
+                            <div class="p-3 bg-white rounded border border-slate-200 text-xs space-y-1">
+                                <p class="font-bold text-blue-700">2. Séjour Longue Durée (10 ans de résidence)</p>
+                                <p class="text-slate-600">Résidence de 10 ans + Langue (A2) + Participation active à la vie de la communauté d'accueil. Pas de critère de travail strict exigé.</p>
+                            </div>
+
+                            <div class="p-3 bg-white rounded border border-slate-200 text-xs space-y-1">
+                                <p class="font-bold text-blue-700">3. Conjoint(e) de Citoyen Belge</p>
+                                <p class="text-slate-600">Résidence de 5 ans dont 3 ans de vie commune + Langue A2 + Intégration sociale + Exigence économique réduite à 234 jours de travail.</p>
+                            </div>
+
+                            <div class="p-3 bg-white rounded border border-slate-200 text-xs space-y-1">
+                                <p class="font-bold text-amber-700">4. Naturalisation Exceptionnelle (Art. 19)</p>
+                                <p class="text-slate-600">Procédure résiduelle devant la Chambre des représentants réservée aux mérites exceptionnels (sport, science, culture) ou apatrides (2 ans de séjour).</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Right Column: Regional Integration Divergence & Chart -->
+                    <div class="space-y-4">
+                        <h4 class="font-bold text-slate-800 text-base flex items-center">
+                            <span class="mr-2">🗺️</span> L'Asymétrie Régionale : "Inburgering" vs Parcours Francophone
+                        </h4>
+                        <p class="text-sm text-slate-700 leading-relaxed">
+                            L'intégration relève des entités fédérées. Dès 2004, la Flandre a imposé l'<strong>Inburgering</strong> obligatoire (orientation sociale, cours de néerlandais intensifs, amendes de 50 à 5 000 € en cas de refus). En revanche, la Wallonie et la COCOF ont longtemps défendu un parcours volontaire orienté vers l'émancipation, avant d'être contraintes de le rendre obligatoire suite aux exigences de la loi fédérale de 2012.
+                        </p>
+
+                        <!-- Chart Container -->
+                        <div class="bg-slate-50 p-4 rounded-lg border border-slate-200">
+                            <p class="text-xs font-bold text-slate-700 mb-2 text-center">Évolution du Budget de l'Inburgering en Flandre (2004 - 2013)</p>
+                            <div class="chart-container">
+                                <canvas id="chartInburgering"></canvas>
+                            </div>
+                            <p class="text-[11px] text-slate-500 mt-2 text-center">L'investissement financier flamand est passé de 8,85M€ en 2004 à 57,9M€ en 2013, illustrant une priorité politique majeure accordée à l'assimilation linguistique.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- SECTION 2: Exercice des Droits Politiques & Le Séisme Électoral de 2024 -->
+        <section id="sec2" class="section-block space-y-6">
+            <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200">
+                <div class="border-b border-slate-100 pb-4 mb-4">
+                    <div class="flex items-center space-x-2">
+                        <span class="bg-blue-100 text-blue-800 text-xs font-bold px-2 py-1 rounded">Module 2</span>
+                        <h3 class="text-xl font-bold text-slate-900">L'Exercice des Droits Politiques : Élargissement & Séisme d'Octobre 2024</h3>
+                    </div>
+                    <p class="text-sm text-slate-600 mt-2">
+                        Cette section étudie la dynamique paradoxale du corps électoral belge : d'un côté, l'ouverture progressive du droit de vote aux résidents étrangers et expatriés ; de l'autre, la fracture inédite provoquée par la fin du vote obligatoire en Flandre lors des élections communales d'octobre 2024.
+                    </p>
+                </div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    <!-- Electoral Inclusivity & Foreign Voter Deficit -->
+                    <div class="space-y-4">
+                        <h4 class="font-bold text-slate-800 text-base flex items-center">
+                            <span class="mr-2">🗳️</span> L'Élargissement du Corps Électoral et la Stagnation Urbaine
+                        </h4>
+                        <ul class="text-sm text-slate-700 space-y-2 list-disc pl-5">
+                            <li><strong>Citoyens UE (depuis 2004) :</strong> Droit de vote aux élections européennes et communales (nécessite une démarche proactive d'inscription).</li>
+                            <li><strong>Ressortissants de pays tiers (depuis 2006) :</strong> Droit de vote aux communales après 5 ans de résidence légale ininterrompue.</li>
+                            <li><strong>Élargissements récents :</strong> Vote dès 16 ans pour les Européennes (2024) et enregistrement record de <strong>255 469 Belges de l'étranger</strong>.</li>
+                        </ul>
+
+                        <div class="bg-amber-50 border border-amber-200 p-4 rounded-lg">
+                            <p class="text-xs font-bold text-amber-900 uppercase">Le Déficit Démocratique Urbain</p>
+                            <p class="text-xs text-amber-800 mt-1">
+                                Malgré cette ouverture, à peine <strong>15 % des ressortissants étrangers</strong> éligibles se sont inscrits pour les communales d'octobre 2024 (et seulement ~10 % dans certaines communes bruxelloises). L'exigence d'une démarche administrative proactive crée un filtre d'exclusion massif des résidents non-nationaux.
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- 2024 Abolition of Compulsory Voting Impact -->
+                    <div class="space-y-4">
+                        <h4 class="font-bold text-slate-800 text-base flex items-center">
+                            <span class="mr-2">📊</span> Abolition du Vote Obligatoire en Flandre : Analyse Comparative CESPOL
+                        </h4>
+                        <p class="text-sm text-slate-700">
+                            En octobre 2024, la Flandre a aboli le vote obligatoire au niveau local, tandis que la Wallonie et Bruxelles le maintenaient. Le résultat a démontré un choc sans précédent sur la participation.
+                        </p>
+
+                        <!-- Chart Container Elections -->
+                        <div class="bg-slate-50 p-4 rounded-lg border border-slate-200">
+                            <p class="text-xs font-bold text-slate-700 mb-2 text-center">Taux de Participation Effectif aux Communales d'Octobre 2024</p>
+                            <div class="chart-container">
+                                <canvas id="chartElections"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Deep Dive into Abstention Profiles -->
+                <div class="mt-6 border-t border-slate-200 pt-6">
+                    <h4 class="font-bold text-slate-800 text-base mb-3">
+                        <span class="mr-2">🔎</span> Stratification Sociale de l'Abstention Flamande (Étude CESPOL / UCLouvain)
+                    </h4>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <div class="bg-red-50 border border-red-200 p-4 rounded-lg">
+                            <p class="text-xs font-bold text-red-900">Fracture Générationnelle</p>
+                            <p class="text-xl font-bold text-red-700 mt-1">53 %</p>
+                            <p class="text-xs text-red-800 mt-1">Des abstentionnistes en Flandre ont entre 18 et 39 ans, alors qu'ils ne forment que 28 % des votants effectifs.</p>
+                        </div>
+
+                        <div class="bg-red-50 border border-red-200 p-4 rounded-lg">
+                            <p class="text-xs font-bold text-red-900">Biais Socio-Économique</p>
+                            <p class="text-xl font-bold text-red-700 mt-1">22 %</p>
+                            <p class="text-xs text-red-800 mt-1">Des non-votants ont un diplôme faible (contre seulement 10 % chez les votants). Le vote optionnel réinstaure un vote censitaire de fait.</p>
+                        </div>
+
+                        <div class="bg-blue-50 border border-blue-200 p-4 rounded-lg">
+                            <p class="text-xs font-bold text-blue-900">Effet Modérateur en Wallonie/Bruxelles</p>
+                            <p class="text-xl font-bold text-blue-700 mt-1">85,2 %</p>
+                            <p class="text-xs text-blue-800 mt-1">De participation en Wallonie grâce au maintien de la contrainte légale, qui protège la représentation des catégories précaires.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- SECTION 3: Citoyenneté Sociale & Pilarisation (Verzuiling) -->
+        <section id="sec3" class="section-block space-y-6">
+            <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200">
+                <div class="border-b border-slate-100 pb-4 mb-4">
+                    <div class="flex items-center space-x-2">
+                        <span class="bg-blue-100 text-blue-800 text-xs font-bold px-2 py-1 rounded">Module 3</span>
+                        <h3 class="text-xl font-bold text-slate-900">Citoyenneté Sociale & Héritages Institutionnels : La Pilarisation</h3>
+                    </div>
+                    <p class="text-sm text-slate-600 mt-2">
+                        Comprendre la citoyenneté sociale belge nécessite d'analyser la « pilarisation » (<em>verzuiling</em>) : une structuration historique de la société civile en blocs idéologiques et le « système gantois » de gestion de la sécurité sociale.
+                    </p>
+                </div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    <!-- Pillarization Explanation & Pacts -->
+                    <div class="space-y-4">
+                        <h4 class="font-bold text-slate-800 text-base flex items-center">
+                            <span class="mr-2">🏛️</span> La Verzuiling et les Grands Pactes Pacificateurs
+                        </h4>
+                        <p class="text-sm text-slate-700 leading-relaxed">
+                            Historiquement, la Belgique s'est organisée en piliers autonomes (Catholique, Socialiste, Libéral) gérant les écoles, hôpitaux, mutualités, syndicats et médias. La citoyenneté s'exerçait de manière médiatisée à travers l'appartenance à son pilier.
+                        </p>
+                        <div class="space-y-2">
+                            <div class="bg-slate-50 p-3 rounded border border-slate-200 text-xs">
+                                <span class="font-bold text-slate-800">📜 Pacte Scolaire (1958/1959) :</span> Garantit la gratuité de l'enseignement et le libre choix des parents entre enseignement officiel et libre confessionnel.
+                            </div>
+                            <div class="bg-slate-50 p-3 rounded border border-slate-200 text-xs">
+                                <span class="font-bold text-slate-800">📜 Pacte Culturel (1972/1973) :</span> Protection des minorités idéologiques et représentation paritaire dans les institutions culturelles et médias publics.
+                            </div>
+                            <div class="bg-slate-50 p-3 rounded border border-slate-200 text-xs">
+                                <span class="font-bold text-slate-800">✊ Mutation Contemporaine (Ex. Soralia) :</span> Réinvention des réseaux (anciennement Femmes Prévoyantes Socialistes) vers le féminisme, laïcité et soutien aux femmes en STIM.
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Ghent System Diagram / Explain -->
+                    <div class="space-y-4">
+                        <h4 class="font-bold text-slate-800 text-base flex items-center">
+                            <span class="mr-2">⚙️</span> Le "Système Gantois" et la Résilience Syndicale
+                        </h4>
+                        <p class="text-sm text-slate-700 leading-relaxed">
+                            Né à Gand à la fin du XIXe siècle, le système gantois confie aux syndicats le versement des allocations de chômage subventionnées par l'État.
+                        </p>
+                        
+                        <div class="bg-blue-50 border border-blue-200 p-4 rounded-lg text-xs space-y-2">
+                            <p class="font-bold text-blue-900">Pourquoi le taux de syndicalisation reste-t-il exceptionnellement élevé en Belgique ?</p>
+                            <p class="text-blue-800">
+                                L'affiliation syndicale n'est pas uniquement un engagement militant, mais une modalité pratique d'accès aux prestations sociales. Cela garantit un ancrage syndical fort, bien que menacé aujourd'hui par l'ubérisation du travail et le désengagement des jeunes.
+                            </p>
+                        </div>
+
+                        <!-- Process Workflow Graphic -->
+                        <div class="bg-slate-100 p-3 rounded-lg border border-slate-300 flex flex-col space-y-2 text-xs">
+                            <div class="flex items-center justify-between bg-white p-2 rounded shadow-sm">
+                                <span class="font-semibold text-slate-700">1. Cotisation & Subvention</span>
+                                <span class="text-slate-500">Financement Public + Cotisations</span>
+                            </div>
+                            <div class="text-center text-slate-400 font-bold">⬇️</div>
+                            <div class="flex items-center justify-between bg-white p-2 rounded shadow-sm border-l-4 border-blue-600">
+                                <span class="font-semibold text-slate-700">2. Paiement via Syndicats</span>
+                                <span class="text-blue-600 font-bold">Organismes Payeurs (FGTB, CSC, CGSLB)</span>
+                            </div>
+                            <div class="text-center text-slate-400 font-bold">⬇️</div>
+                            <div class="flex items-center justify-between bg-white p-2 rounded shadow-sm">
+                                <span class="font-semibold text-slate-700">3. Protection Citoyenne</span>
+                                <span class="text-slate-500">Maintien de la Cohésion Sociale</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- SECTION 4: La Fracture Numérique -->
+        <section id="sec4" class="section-block space-y-6">
+            <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200">
+                <div class="border-b border-slate-100 pb-4 mb-4">
+                    <div class="flex items-center space-x-2">
+                        <span class="bg-blue-100 text-blue-800 text-xs font-bold px-2 py-1 rounded">Module 4</span>
+                        <h3 class="text-xl font-bold text-slate-900">La Fracture Numérique : Nouvelles Entraves à l'Exercice des Droits</h3>
+                    </div>
+                    <p class="text-sm text-slate-600 mt-2">
+                        La dématérialisation accélérée des administrations (MyMinfin, eBox, itsme®) transforme l'incompétence numérique en une exclusion civique directe. Cette section s'appuie sur le Baromètre de l'Inclusion Numérique 2024.
+                    </p>
+                </div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    <!-- Chart Exclusion Barometer -->
+                    <div class="space-y-4">
+                        <h4 class="font-bold text-slate-800 text-base flex items-center">
+                            <span class="mr-2">💻</span> Baromètre de l'Inclusion Numérique 2024 (Statbel)
+                        </h4>
+                        <div class="bg-slate-50 p-4 rounded-lg border border-slate-200">
+                            <p class="text-xs font-bold text-slate-700 mb-2 text-center">Taux de Vulnérabilité Numérique par Catégorie Sociale</p>
+                            <div class="chart-container">
+                                <canvas id="chartInclusion"></canvas>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Legal Framework & EPN Mediators -->
+                    <div class="space-y-4">
+                        <h4 class="font-bold text-slate-800 text-base flex items-center">
+                            <span class="mr-2">🛡️</span> Riposte Légale et Précarité de la Médiation
+                        </h4>
+                        <p class="text-sm text-slate-700 leading-relaxed">
+                            Face à ce risque de citoyenneté à deux vitesses, une législation fédérale contraint désormais les services publics autonomes (SNCB, Proximus, Post, etc.) à maintenir au moins <strong>3 alternatives non-numériques</strong> :
+                        </p>
+
+                        <div class="grid grid-cols-3 gap-2 text-center text-xs">
+                            <div class="p-2 bg-slate-100 rounded border border-slate-200">
+                                <p class="text-lg">🏢</p>
+                                <p class="font-bold text-slate-800">Guichet Physique</p>
+                            </div>
+                            <div class="p-2 bg-slate-100 rounded border border-slate-200">
+                                <p class="text-lg">📞</p>
+                                <p class="font-bold text-slate-800">Service Téléphonique</p>
+                            </div>
+                            <div class="p-2 bg-slate-100 rounded border border-slate-200">
+                                <p class="text-lg">✉️</p>
+                                <p class="font-bold text-slate-800">Voie Postale</p>
+                            </div>
+                        </div>
+
+                        <div class="bg-red-50 border border-red-200 p-4 rounded-lg text-xs space-y-1">
+                            <p class="font-bold text-red-900">Le paradoxe des Espaces Publics Numériques (EPN)</p>
+                            <p class="text-red-800">
+                                Les médiateurs numériques sont devenus les garants de l'accès aux droits sociaux. Pourtant, leurs statuts restent dramatiquement précaires (contrats ACS, emplois temporaires "Article 60"), entraînant un roulement permanent du personnel qui mine le suivi des usagers.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- SECTION 5: Crise Systémique de la Représentation : Particratie -->
+        <section id="sec5" class="section-block space-y-6">
+            <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200">
+                <div class="border-b border-slate-100 pb-4 mb-4">
+                    <div class="flex items-center space-x-2">
+                        <span class="bg-blue-100 text-blue-800 text-xs font-bold px-2 py-1 rounded">Module 5</span>
+                        <h3 class="text-xl font-bold text-slate-900">Particratie & Déficit de Confiance Institutionalisée</h3>
+                    </div>
+                    <p class="text-sm text-slate-600 mt-2">
+                        Cette section dissèque le fonctionnement de la particratie belge, la préemption du débat parlementaire par les présidents de parti, et le débat autour de l'instauration d'une circonscription électorale fédérale.
+                    </p>
+                </div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    <!-- Particracy Breakdown -->
+                    <div class="space-y-4">
+                        <h4 class="font-bold text-slate-800 text-base flex items-center">
+                            <span class="mr-2">👑</span> L'Hypertrophie Partisane et la Constitution Malmenée
+                        </h4>
+                        <p class="text-sm text-slate-700 leading-relaxed">
+                            En Belgique, les décisions politiques majeures sont négociées en conclave fermé par les <strong>présidents de partis</strong>, élus par leurs seuls militants. Cette dynamique crée une discipline de vote absolue qui contourne l'<strong>Article 42 de la Constitution</strong> (liberté du mandat parlementaire).
+                        </p>
+
+                        <!-- Trust Bar Comparison -->
+                        <div class="bg-slate-50 p-4 rounded-lg border border-slate-200 text-xs space-y-3">
+                            <p class="font-bold text-slate-800 uppercase">Le Décalage Eurobaromètre (2024-2025)</p>
+                            <div>
+                                <div class="flex justify-between font-bold text-slate-700 mb-1">
+                                    <span>Satisfaction Vie Personnelle</span>
+                                    <span>87 %</span>
+                                </div>
+                                <div class="w-full bg-slate-200 h-3 rounded-full">
+                                    <div class="bg-emerald-600 h-3 rounded-full" style="width: 87%"></div>
+                                </div>
+                            </div>
+                            <div>
+                                <div class="flex justify-between font-bold text-slate-700 mb-1">
+                                    <span>Satisfaction Démocratie Belge</span>
+                                    <span>55 %</span>
+                                </div>
+                                <div class="w-full bg-slate-200 h-3 rounded-full">
+                                    <div class="bg-amber-600 h-3 rounded-full" style="width: 55%"></div>
+                                </div>
+                            </div>
+                            <p class="text-[11px] text-slate-500 italic">Les partis politiques accusent le niveau de confiance le plus bas de toutes les institutions démocratiques.</p>
+                        </div>
+                    </div>
+
+                    <!-- Federal Constituency Debate -->
+                    <div class="space-y-4">
+                        <h4 class="font-bold text-slate-800 text-base flex items-center">
+                            <span class="mr-2">🧱</span> L'Absence d'Arène Nationale : La Circonscription Fédérale
+                        </h4>
+                        <p class="text-sm text-slate-700 leading-relaxed">
+                            Depuis la scission des partis nationaux dans les années 1970, aucun homme politique de rang fédéral ne sollicite le suffrage de l'ensemble des citoyens belges. Les élus ne répondent qu'à leur électorat linguistique respectif.
+                        </p>
+
+                        <div class="bg-blue-50 border border-blue-200 p-4 rounded-lg text-xs space-y-2">
+                            <p class="font-bold text-blue-900">Propositions Re-Bel (Pilet & Van Parijs)</p>
+                            <p class="text-blue-800">
+                                Réserver <strong>15 sièges sur 150</strong> à la Chambre des représentants pour une liste nationale unique bilingue. Cela forcerait les leaders politiques à élaborer des programmes s'adressant à la fois aux Flamands, Wallons et Bruxellois.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- SECTION 6: Innovations Délibératives & Activisme Judiciaire -->
+        <section id="sec6" class="section-block space-y-6">
+            <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200">
+                <div class="border-b border-slate-100 pb-4 mb-4">
+                    <div class="flex items-center space-x-2">
+                        <span class="bg-blue-100 text-blue-800 text-xs font-bold px-2 py-1 rounded">Module 6</span>
+                        <h3 class="text-xl font-bold text-slate-900">Les Nouvelles Frontières : Démocratie Délibérative & Activisme Judiciaire</h3>
+                    </div>
+                    <p class="text-sm text-slate-600 mt-2">
+                        Face aux blocages particratiques, la société civile réinvente son action via deux voies majeures : la démocratie délibérative tirée au sort et les actions en justice à fort impact constitutionnel.
+                    </p>
+                </div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    <!-- Deliberative Models: Ostbelgien & Commissions Mixte -->
+                    <div class="space-y-4">
+                        <h4 class="font-bold text-slate-800 text-base flex items-center">
+                            <span class="mr-2">🗣️</span> Le Modèle pionnier d'Ostbelgien
+                        </h4>
+                        <p class="text-sm text-slate-700 leading-relaxed">
+                            En 2019, la Communauté germanophone est devenue le premier territoire au monde à se doter d'un système de délibération citoyenne permanent par tirage au sort (projet soutenu par le G1000).
+                        </p>
+
+                        <div class="bg-slate-50 p-3 rounded-lg border border-slate-200 space-y-2 text-xs">
+                            <div class="p-2 bg-white rounded border border-slate-200">
+                                <p class="font-bold text-blue-800">1. Bürgerrat (Conseil Citoyen)</p>
+                                <p class="text-slate-600">24 citoyens tirés au sort pour 18 mois. Possède le pouvoir souverain de fixer l'agenda politique des thèmes à débattre.</p>
+                            </div>
+                            <div class="p-2 bg-white rounded border border-slate-200">
+                                <p class="font-bold text-blue-800">2. Assemblées Ad Hoc</p>
+                                <p class="text-slate-600">25 à 50 citoyens réunis pour élaborer des recommandations précises soumises aux députés.</p>
+                            </div>
+                            <div class="p-2 bg-amber-50 rounded border border-amber-200 text-amber-900">
+                                <p class="font-bold">3. Obligation de Suite Parlementaire</p>
+                                <p>Les parlementaires ont l'obligation légale de débattre des recommandations et de justifier publiquement tout refus de transposition.</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Klimaatzaak & Judicial Activism -->
+                    <div class="space-y-4">
+                        <h4 class="font-bold text-slate-800 text-base flex items-center">
+                            <span class="mr-2">⚖️</span> Activisme Judiciaire : La Victoire Historique de la "Klimaatzaak"
+                        </h4>
+                        <p class="text-sm text-slate-700 leading-relaxed">
+                            L'Affaire Climat (58 000 requérants) démontre la mutation du citoyen en plaignant judiciaire face aux carences de l'État.
+                        </p>
+
+                        <!-- Timeline of Klimaatzaak -->
+                        <div class="bg-slate-50 p-4 rounded-lg border border-slate-200 space-y-3 text-xs">
+                            <div class="border-l-2 border-blue-600 pl-3">
+                                <p class="font-bold text-slate-800">2015 - Lancement</p>
+                                <p class="text-slate-600">Action intentée contre l'État fédéral et les 3 Régions.</p>
+                            </div>
+                            <div class="border-l-2 border-blue-600 pl-3">
+                                <p class="font-bold text-slate-800">2021 - Premier Instance</p>
+                                <p class="text-slate-600">Faute de gouvernance reconnue, mais pas d'injonction chiffrée au nom de la séparation des pouvoirs.</p>
+                            </div>
+                            <div class="border-l-2 border-emerald-600 pl-3 bg-emerald-50/50 p-2 rounded">
+                                <p class="font-bold text-emerald-900">30 Novembre 2023 - Arrêt Historique</p>
+                                <p class="text-emerald-800">
+                                    La Cour d'appel de Bruxelles ordonne une réduction de <strong>-55 % des émissions d'ici 2030</strong>. Fondé sur les Articles 2 et 8 de la CEDH et l'Article 144 de la Constitution.
+                                </p>
+                            </div>
+                            <div class="border-l-2 border-blue-600 pl-3">
+                                <p class="font-bold text-slate-800">Octobre 2025 - Moratoires Urbanistiques</p>
+                                <p class="text-slate-600">Application de la jurisprudence congelant la bétonisation en Région bruxelloise.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- SECTION: Interactive Tools & Simulators -->
+        <section id="simulators" class="mt-10 space-y-6">
+            <div class="bg-slate-900 text-white p-6 rounded-xl shadow-md border border-slate-800">
+                <div class="border-b border-slate-800 pb-4 mb-4">
+                    <span class="bg-amber-600 text-white text-xs font-bold px-2 py-1 rounded">Module Interactif</span>
+                    <h3 class="text-xl font-bold text-white mt-2">Simulateur d'Éligibilité à la Nationalité (Art. 12bis)</h3>
+                    <p class="text-sm text-slate-300 mt-1">
+                        Testez virtuellement les critères du Code de la nationalité belge pour évaluer les exigences administratives.
+                    </p>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="space-y-4 text-xs">
+                        <div>
+                            <label class="block font-bold text-slate-200 mb-1">Durée de séjour légal ininterrompu :</label>
+                            <select id="simResid" class="w-full bg-slate-800 text-white border border-slate-700 p-2 rounded focus:outline-none">
+                                <option value="less5">Moins de 5 ans</option>
+                                <option value="5">5 ans révolus</option>
+                                <option value="10">10 ans ou plus</option>
+                            </select>
+                        </div>
+
+                        <div>
+                            <label class="block font-bold text-slate-200 mb-1">Participation économique (5 dernières années) :</label>
+                            <select id="simWork" class="w-full bg-slate-800 text-white border border-slate-700 p-2 rounded focus:outline-none">
+                                <option value="468">468 jours salariés / 6 trimestres indépendant</option>
+                                <option value="234">234 jours salariés (conjoint de belge)</option>
+                                <option value="none">Aucune / Moins de 468 jours</option>
+                            </select>
+                        </div>
+
+                        <div>
+                            <label class="block font-bold text-slate-200 mb-1">Preuve de langue (Niveau A2) & Intégration :</label>
+                            <select id="simLang" class="w-full bg-slate-800 text-white border border-slate-700 p-2 rounded focus:outline-none">
+                                <option value="yes">A2 attestation + 400h formation ou diplôme secondaire</option>
+                                <option value="no">Pas d'attestation formelle A2</option>
+                            </select>
+                        </div>
+
+                        <button onclick="evaluateEligibility()" class="w-full bg-blue-600 hover:bg-blue-500 font-bold text-white py-2 rounded transition">
+                            Évaluer le dossier
+                        </button>
+                    </div>
+
+                    <div id="simResult" class="bg-slate-800 p-4 rounded-lg border border-slate-700 flex flex-col justify-center text-xs space-y-2">
+                        <p class="text-slate-400 italic text-center">Sélectionnez vos critères et cliquez sur "Évaluer le dossier" pour voir le résultat.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-slate-900 text-slate-400 text-xs py-6 border-t border-slate-800 mt-12">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row justify-between items-center gap-4">
+            <div>
+                <p class="font-bold text-slate-300">Analyse Critique de l'Exercice de la Citoyenneté en Belgique</p>
+                <p class="text-slate-500">Source : Rapport d'analyse sociopolitique et juridique - Fédéralisme consociatif</p>
+            </div>
+            <div class="flex space-x-4">
+                <button onclick="window.scrollTo({top: 0, behavior: 'smooth'})" class="hover:text-white transition">⬆️ Retour en haut</button>
+            </div>
+        </div>
+    </footer>
+
+    <!-- JavaScript Logic & Chart Setup -->
+    <script>
+        // Tab switching function
+        function showTab(tabId) {
+            // Hide all sections
+            const sections = document.querySelectorAll('.section-block');
+            sections.forEach(sec => sec.classList.add('hidden'));
+
+            // Deactivate all buttons
+            const buttons = document.querySelectorAll('.tab-btn');
+            buttons.forEach(btn => btn.classList.remove('active'));
+
+            // Show selected section
+            const target = document.getElementById(tabId);
+            if (target) {
+                target.classList.remove('hidden');
+            }
+
+            // Activate button
+            const activeBtn = document.getElementById('btn-' + tabId);
+            if (activeBtn) {
+                activeBtn.classList.add('active');
+            }
+        }
+
+        // Smooth scroll helper
+        function scrollToSection(id) {
+            const el = document.getElementById(id);
+            if (el) {
+                el.scrollIntoView({ behavior: 'smooth' });
+            }
+        }
+
+        // Live text filter
+        function filterContent() {
+            const query = document.getElementById('searchInput').value.toLowerCase().trim();
+            const cards = document.querySelectorAll('.section-block');
+            let matchCount = 0;
+
+            if (query === '') {
+                sectionsShowAll();
+                document.getElementById('searchResultsCount').classList.add('hidden');
+                return;
+            }
+
+            cards.forEach(sec => {
+                const text = sec.innerText.toLowerCase();
+                if (text.includes(query)) {
+                    sec.classList.remove('hidden');
+                    matchCount++;
+                } else {
+                    sec.classList.add('hidden');
+                }
+            });
+
+            const countDisplay = document.getElementById('searchResultsCount');
+            countDisplay.innerText = `${matchCount} module(s) trouvé(s)`;
+            countDisplay.classList.remove('hidden');
+        }
+
+        function sectionsShowAll() {
+            const sections = document.querySelectorAll('.section-block');
+            sections.forEach(sec => sec.classList.remove('hidden'));
+        }
+
+        // Nationality Simulator Evaluation
+        function evaluateEligibility() {
+            const resid = document.getElementById('simResid').value;
+            const work = document.getElementById('simWork').value;
+            const lang = document.getElementById('simLang').value;
+            const resDiv = document.getElementById('simResult');
+
+            if (resid === 'less5') {
+                resDiv.innerHTML = `
+                    <div class="p-3 bg-red-900/40 border border-red-700 rounded text-red-200">
+                        <p class="font-bold text-sm">❌ Non Éligible (Séjour insuffisant)</p>
+                        <p class="mt-1">La loi exige un minimum de 5 ans de résidence légale ininterrompue en Belgique sous titre de séjour illimité.</p>
+                    </div>
+                `;
+                return;
+            }
+
+            if (lang === 'no') {
+                resDiv.innerHTML = `
+                    <div class="p-3 bg-amber-900/40 border border-amber-700 rounded text-amber-200">
+                        <p class="font-bold text-sm">⚠️ Conditions incomplètes (Langue / Intégration)</p>
+                        <p class="mt-1">Vous devez obligatoirement prouver le niveau A2 dans l'une des 3 langues nationales et fournir une preuve formelle d'intégration (diplôme ou 400h de formation).</p>
+                    </div>
+                `;
+                return;
+            }
+
+            if (resid === '5' && work === '468' && lang === 'yes') {
+                resDiv.innerHTML = `
+                    <div class="p-3 bg-emerald-900/40 border border-emerald-700 rounded text-emerald-200">
+                        <p class="font-bold text-sm">✅ Éligible (Art. 12bis - Procédure Standard)</p>
+                        <p class="mt-1">Vous remplissez les conditions cumulatives de séjour (5 ans), d'intégration linguistique/sociale et de participation économique (468 jours). Droits d'enregistrement : 1 000 €.</p>
+                    </div>
+                `;
+            } else if (resid === '10' && lang === 'yes') {
+                resDiv.innerHTML = `
+                    <div class="p-3 bg-emerald-900/40 border border-emerald-700 rounded text-emerald-200">
+                        <p class="font-bold text-sm">✅ Éligible (Art. 12bis - Longue Durée 10 ans)</p>
+                        <p class="mt-1">Après 10 ans de séjour, les exigences économiques sont levées, mais vous devez prouver votre participation à la vie de la communauté d'accueil et le niveau A2.</p>
+                    </div>
+                `;
+            } else {
+                resDiv.innerHTML = `
+                    <div class="p-3 bg-amber-900/40 border border-amber-700 rounded text-amber-200">
+                        <p class="font-bold text-sm">⚠️ Examen complémentaire requis</p>
+                        <p class="mt-1">Vos critères de travail ou de séjour nécessitent un régime dérogatoire (ex: conjoint de belge avec 234 jours de travail requis).</p>
+                    </div>
+                `;
+            }
+        }
+
+        // Chart Initialization
+        window.addEventListener('DOMContentLoaded', () => {
+            // 1. Inburgering Budget Chart
+            const ctxInburgering = document.getElementById('chartInburgering').getContext('2d');
+            new Chart(ctxInburgering, {
+                type: 'line',
+                data: {
+                    labels: ['2004', '2007', '2010', '2013'],
+                    datasets: [{
+                        label: 'Budget Inburgering Flandre (en M€)',
+                        data: [8.85, 22.0, 41.0, 57.9],
+                        borderColor: '#d97706',
+                        backgroundColor: 'rgba(217, 119, 6, 0.1)',
+                        fill: true,
+                        tension: 0.3,
+                        pointRadius: 5
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: true, position: 'bottom' },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    return context.parsed.y + ' Millions €';
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            title: { display: true, text: 'Budget en Millions d\'Euros' }
+                        }
+                    }
+                }
+            });
+
+            // 2. Elections 2024 Turnout Chart
+            const ctxElections = document.getElementById('chartElections').getContext('2d');
+            new Chart(ctxElections, {
+                type: 'bar',
+                data: {
+                    labels: ['Wallonie (Obligatoire)', 'Bruxelles (Obligatoire)', 'Flandre (Optionnel 2024)', 'Flandre (2018 avec Obligation)'],
+                    datasets: [{
+                        label: 'Taux de Participation (%)',
+                        data: [85.2, 79.6, 63.6, 92.2],
+                        backgroundColor: [
+                            '#1d4ed8',
+                            '#0d9488',
+                            '#dc2626',
+                            '#64748b'
+                        ]
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    return context.parsed.y + ' % de participation';
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            min: 50,
+                            max: 100,
+                            title: { display: true, text: 'Pourcentage (%)' }
+                        },
+                        x: {
+                            ticks: {
+                                callback: function(val, index) {
+                                    let label = this.getLabelForValue(index);
+                                    return label.length > 16 ? label.substr(0, 16) + '...' : label;
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+
+            // 3. Digital Inclusion Vulnerability Chart
+            const ctxInclusion = document.getElementById('chartInclusion').getContext('2d');
+            new Chart(ctxInclusion, {
+                type: 'bar',
+                indexAxis: 'y',
+                data: {
+                    labels: ['Moyenne Belge (16-74 ans)', 'Personnes Peu Diplômées', 'Mauvaise Santé Déclarée', 'Demandeurs d\'Emploi'],
+                    datasets: [{
+                        label: 'Taux de Vulnérabilité Numérique (%)',
+                        data: [40, 70, 58, 54],
+                        backgroundColor: '#d97706'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    return context.parsed.x + ' % de personnes vulnérables';
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        x: {
+                            min: 0,
+                            max: 100,
+                            title: { display: true, text: 'Pourcentage (%)' }
+                        }
+                    }
+                }
+            });
+        });
+    </script>
+</body>
+</html>
