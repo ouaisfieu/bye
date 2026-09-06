@@ -1,0 +1,57 @@
+# Bye Bye Belgium — Instruire la fin d'un pays
+
+> Enquête documentée sur les scénarios de fin de la Belgique : droit de sécession, statut de Bruxelles, partage de la dette, confédéralisme, indépendance flamande, refédéralisation. Chaque scénario instruit, chaque chiffre sourcé.
+
+Auteur : Vigie (nom de plume). Éditeur anonyme. Corpus arrêté au 6 septembre 2026.
+Site statique, sans JavaScript ni ressource externe. 105 sources listées.
+
+## Thèse
+
+La fin de la Belgique est annoncée depuis un siècle et n'a jamais été écrite. Aucun parti n'a publié de clé de partage de la dette, de statut juridique pour Bruxelles ni de régime transitoire pour les droits sociaux. Ce qui se produit n'est pas une rupture mais une dissociation continue : le pays ne se casse pas, il se vide, et sa capacité d'arbitrage migre vers des instances non élues.
+
+## Dossiers
+
+### I. L'annonce
+
+- [Le canular de 2006](https://ouaisfieu.github.io/bye/dossiers/le-canular-de-2006.html) — Le 13 décembre 2006, la RTBF annonce la fin de la Belgique. Vingt ans plus tard, l'émission a eu tort sur la forme et raison sur le fond : personne n'avait de procédure. *(archive)*
+- [La fin annoncée](https://ouaisfieu.github.io/bye/dossiers/la-fin-annoncee.html) — Depuis 1912, la disparition de la Belgique est annoncée par cycles. Pourquoi la prédiction est structurellement fausse — et pourquoi elle reste politiquement efficace. *(instruit)*
+- [Qui veut la fin](https://ouaisfieu.github.io/bye/dossiers/qui-veut-la-fin.html) — Enquête nationale, résultats électoraux, préférences des parlementaires : l'écart entre la place du communautaire dans l'agenda politique et sa place dans les préoccupations. *(instruit)*
+- [La machine à dissocier](https://ouaisfieu.github.io/bye/dossiers/la-machine-a-dissocier.html) — 1970, 1980, 1988, 1993, 2001, 2014 : le fédéralisme belge n'a jamais de point d'arrêt. L'article 195 et la manœuvre de 2026 sur le Sénat en fournissent la clé. *(instruit)*
+
+### II. Le droit de partir
+
+- [Pas de clause de sortie](https://ouaisfieu.github.io/bye/dossiers/pas-de-clause-de-sortie.html) — Aucune disposition constitutionnelle n'organise la sécession d'une entité fédérée belge. Reconstitution du seul chemin juridique disponible, étape par étape. *(non instruit)*
+- [La sécession en droit international](https://ouaisfieu.github.io/bye/dossiers/secession-en-droit-international.html) — Ni droit à la sécession, ni interdiction : l'état exact du droit international, établi par l'avis de la CIJ sur le Kosovo et le renvoi de la Cour suprême du Canada. *(instruit)*
+- [La porte européenne](https://ouaisfieu.github.io/bye/dossiers/la-porte-europeenne.html) — Une entité qui se sépare d'un État membre sort-elle de l'Union européenne ? État du droit, positions officielles et conséquences pour un scénario belge. *(partiellement instruit)*
+- [Le précédent tchécoslovaque](https://ouaisfieu.github.io/bye/dossiers/le-precedent-tchecoslovaque.html) — Le Vlaams Belang invoque la séparation de 1993 comme modèle. Comparaison terme à terme : capitale, dette, monnaie, Union européenne. Cinq différences décisives. *(instruit)*
+
+### III. Le nœud bruxellois
+
+- [Bruxelles, le verrou](https://ouaisfieu.github.io/bye/dossiers/bruxelles-le-verrou.html) — Enclavée en territoire flamand, majoritairement francophone, capitale de la Flandre en droit flamand, siège de l'Union : les quatre propriétés qui bloquent tout scénario. *(non instruit)*
+- [Quatre solutions, quatre impasses](https://ouaisfieu.github.io/bye/dossiers/quatre-solutions-bruxelloises.html) — Rattachement à la Flandre, Wallobrux, cité-État, condominium : chaque solution proposée pour Bruxelles est instruite et confrontée à son obstacle propre. *(partiellement instruit)*
+- [La frontière et les facilités](https://ouaisfieu.github.io/bye/dossiers/la-frontiere-et-les-facilites.html) — Lois de 1962 et 1963, trente communes à facilités, périphérie bruxelloise, Fourons, scission de BHV : l'état exact du dossier territorial belge. *(instruit)*
+- [La capitale des autres](https://ouaisfieu.github.io/bye/dossiers/la-capitale-des-autres.html) — 49 organisations internationales, le siège de l'Union et celui de l'OTAN. Le sort des accords de siège en cas de succession d'États n'est réglé par aucun texte. *(non instruit)*
+
+### IV. La facture
+
+- [Partager la dette](https://ouaisfieu.github.io/bye/dossiers/partager-la-dette.html) — La Convention de Vienne de 1983 n'est pas en vigueur et prescrit une « proportion équitable ». Trois clés de partage appliquées à la dette belge, et ce qu'elles donnent. *(non instruit)*
+- [Les transferts, et ce qu'ils ne prouvent pas](https://ouaisfieu.github.io/bye/dossiers/les-transferts.html) — Le chiffre le plus cité du débat belge, sa méthode, sa décrue, sa comparaison européenne — et le flux inverse que l'étude de la Banque nationale a mis au jour. *(instruit)*
+- [La sécurité sociale, le point dur](https://ouaisfieu.github.io/bye/dossiers/la-securite-sociale.html) — Cinq résolutions flamandes de 1999, déficit de 7,6 milliards, système gantois : ce qu'une scission de la sécurité sociale impliquerait réellement. *(partiellement instruit)*
+- [La falaise de 2034](https://ouaisfieu.github.io/bye/dossiers/la-loi-de-financement.html) — Le mécanisme de transition de la sixième réforme s'éteint en 2034 par tranches de 10 % par an depuis 2025. Aucune renégociation n'est engagée. *(instruit)*
+- [Les marchés et les notes](https://ouaisfieu.github.io/bye/dossiers/les-marches-et-les-notes.html) — Dégradation Aa3 vers A1 le 17 avril 2026, motif explicite, conclave d'octobre : comment l'arbitrage budgétaire belge a migré vers des acteurs non élus. *(instruit)*
+
+### V. Les issues
+
+- [Le confédéralisme](https://ouaisfieu.github.io/bye/dossiers/confederalisme.html) — Le projet confédéral de la N-VA, son contenu publié, ses zones blanches — Bruxelles, la dette, la sécurité sociale — et sa mise en œuvre silencieuse depuis 2025. *(partiellement instruit)*
+- [L'indépendance](https://ouaisfieu.github.io/bye/dossiers/independance.html) — Déclaration de souveraineté, négociation, traité de divorce : le seul scénario de rupture explicite, confronté aux obstacles juridiques et financiers réels. *(non instruit)*
+- [Refédéraliser](https://ouaisfieu.github.io/bye/dossiers/refederaliser.html) — Circonscription fédérale, refédéralisation de la santé, arène politique nationale : le scénario inverse, ses défenseurs, ses chances. *(partiellement instruit)*
+- [Verdict](https://ouaisfieu.github.io/bye/dossiers/verdict.html) — Synthèse : ce que l'enquête établit, ce qu'elle ne peut pas établir, et la seule conclusion qui résiste — le pays ne se casse pas, il se vide. *(synthèse)*
+
+## Pages
+
+- [Sommaire](https://ouaisfieu.github.io/bye/sommaire.html)
+- [Chronologie](https://ouaisfieu.github.io/bye/chronologie.html)
+- [Chiffres](https://ouaisfieu.github.io/bye/chiffres.html)
+- [Lexique](https://ouaisfieu.github.io/bye/lexique.html)
+- [Sources](https://ouaisfieu.github.io/bye/sources.html)
+- [Méthode](https://ouaisfieu.github.io/bye/methode.html)
