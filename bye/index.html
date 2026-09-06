@@ -1,0 +1,1036 @@
+<!DOCTYPE html>
+<html lang="fr" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>L'Exercice Démocratique en Belgique : Analyse Critique & Innovations</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Chart.js CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            50: '#f0f7ff',
+                            100: '#e0effe',
+                            200: '#bae0fd',
+                            600: '#2563eb',
+                            700: '#1d4ed8',
+                            800: '#1e40af',
+                            900: '#1e3a8a',
+                        },
+                        civic: {
+                            bg: '#f8fafc',
+                            card: '#ffffff',
+                            dark: '#0f172a',
+                            muted: '#475569',
+                            amber: '#d97706',
+                            rose: '#be123c',
+                            emerald: '#047857'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        /* CSS personnalisée minimale pour la gestion stricte des conteneurs de graphiques */
+        .chart-container {
+            position: relative;
+            width: 100%;
+            max-width: 100%;
+            height: 320px;
+            max-height: 400px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        @media (min-width: 768px) {
+            .chart-container {
+                height: 380px;
+            }
+        }
+        /* Masquer la barre de défilement tout en conservant la fonctionnalité */
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .no-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+    </style>
+</head>
+<body class="bg-civic-bg text-slate-800 font-sans antialiased min-h-screen flex flex-col">
+
+    <!-- Chosen Palette: Warm Neutral & Civic Slate (Slate Blue #0f172a, Royal Blue #2563eb, Amber #d97706, Rose #be123c, Cream/Slate Background #f8fafc) -->
+
+    <!-- Application Structure Plan:
+        1. Header & Navigation: Navigation par onglets thématiques (Vue d'Ensemble, Modèle Consociatif & Fédéral, Particratie & Cartel, Financement des Partis, Fracture & Élections 2024, Cordon Sanitaire, Innovations Délibératives) pour éviter un défilement linéaire lourd.
+        2. Section Introductive Contextuelle: Chaque grande section démarre par un paragraphe introductif explicitant la pertinence analytique, les données représentées et les clés de lecture.
+        3. Tableaux de bord dynamiques et interactifs:
+            - Module 1: Diagnostic & Paradoxe Consociatif (Indicateurs clés, comparaison Belgique/UE/Régions).
+            - Module 2: Ingestion & Verrou Fédéral (Analyse interactive de l'Article 195, Sonnette d'alarme, Asymétrie).
+            - Module 3: Économie Politique & Particratie (Graphiques interactifs Chart.js du financement des partis en 2024, tableau filtrable et triable des 12 partis, patrimoine net).
+            - Module 4: Élections d'Octobre 2024 & Fracture Civique (Simulateur d'abstention en Flandre vs 2018, indicateurs de confiance IWEPS/ESS).
+            - Module 5: Cordon Sanitaire (Comparateur interactif Nord/Sud, Cordon Politique vs Médiatique, Impact des réseaux sociaux).
+            - Module 6: Innovations Délibératives (Comparaison interactive Ostbelgien Bürgerrat vs Commissions Délibératives Bruxelloises).
+        4. Barre de Recherche Global & Lexique Démocratique.
+    -->
+
+    <!-- Visualization & Content Choices:
+        - Financier (Partis) -> Dynamic Bar & Pie Charts (Chart.js Canvas) -> Visualiser l'extrême dépendance aux dotations publiques (77%-90%) vs cotisations (3.9%).
+        - Confiance Politique -> Multi-bar Chart (Chart.js Canvas) -> Comparer Wallonie (33.2%), Flandre (44.4%) et moyenne nationale (40.5%).
+        - Effet Fin Obligation de Vote Flandre -> Doughnut Chart & Gauge (Chart.js Canvas) -> Chute de la participation de 92.6% à 63.5% (1.8M d'abstentions).
+        - Procédure Article 195 & Organigrammes Délibératifs -> Cartes interactives HTML/CSS stylisées avec Tailwind et transitions JS (NO SVG / NO Mermaid).
+        - Cordon Sanitaire -> Switch interactif HTML/JS pour juxtaposer la logique Francophone vs Flamande.
+    -->
+
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+
+    <!-- Navigation Supérieure Fixe -->
+    <header class="sticky top-0 z-50 bg-slate-900 text-white shadow-md">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-16">
+                <div class="flex items-center space-x-3">
+                    <div class="w-8 h-8 rounded-full bg-blue-600 flex items-center justify-center font-bold text-white text-lg">🇧🇪</div>
+                    <div>
+                        <span class="font-bold text-lg tracking-wide block leading-tight">Démocratie Belge</span>
+                        <span class="text-xs text-slate-400 block">Analyse Critique & Modèles Institutionnels</span>
+                    </div>
+                </div>
+                
+                <!-- Recherche Rapide dans le rapport -->
+                <div class="hidden md:flex items-center bg-slate-800 rounded-lg px-3 py-1.5 border border-slate-700 w-64">
+                    <span class="text-slate-400 mr-2">🔍</span>
+                    <input type="text" id="globalSearch" placeholder="Rechercher une notion (ex: 195, PTB...)" class="bg-transparent text-sm text-white focus:outline-none w-full" onkeyup="handleGlobalSearch()">
+                </div>
+            </div>
+            
+            <!-- Menu par Onglets -->
+            <nav class="flex space-x-1 overflow-x-auto no-scrollbar border-t border-slate-800 py-2" id="mainNav">
+                <button onclick="switchTab('overview')" id="tab-overview" class="tab-btn active px-3 py-1.5 text-xs sm:text-sm font-medium rounded-md whitespace-nowrap bg-blue-600 text-white">Vue d'Ensemble</button>
+                <button onclick="switchTab('consociational')" id="tab-consociational" class="tab-btn px-3 py-1.5 text-xs sm:text-sm font-medium rounded-md whitespace-nowrap text-slate-300 hover:bg-slate-800">Consociativisme & Fédéralisme</button>
+                <button onclick="switchTab('particracy')" id="tab-particracy" class="tab-btn px-3 py-1.5 text-xs sm:text-sm font-medium rounded-md whitespace-nowrap text-slate-300 hover:bg-slate-800">Particratie & Cartel</button>
+                <button onclick="switchTab('finance')" id="tab-finance" class="tab-btn px-3 py-1.5 text-xs sm:text-sm font-medium rounded-md whitespace-nowrap text-slate-300 hover:bg-slate-800">Financement des Partis</button>
+                <button onclick="switchTab('fracture')" id="tab-fracture" class="tab-btn px-3 py-1.5 text-xs sm:text-sm font-medium rounded-md whitespace-nowrap text-slate-300 hover:bg-slate-800">Fracture & Élections 2024</button>
+                <button onclick="switchTab('cordon')" id="tab-cordon" class="tab-btn px-3 py-1.5 text-xs sm:text-sm font-medium rounded-md whitespace-nowrap text-slate-300 hover:bg-slate-800">Cordon Sanitaire</button>
+                <button onclick="switchTab('deliberative')" id="tab-deliberative" class="tab-btn px-3 py-1.5 text-xs sm:text-sm font-medium rounded-md whitespace-nowrap text-slate-300 hover:bg-slate-800">Innovations Délibératives</button>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Zone de Résultats de Recherche Global (Caché par défaut) -->
+    <div id="searchResultsModal" class="hidden max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 my-4">
+        <div class="bg-amber-50 border border-amber-200 rounded-xl p-4 relative">
+            <button onclick="closeSearchResults()" class="absolute top-3 right-3 text-amber-800 font-bold text-lg">&times;</button>
+            <h3 class="font-bold text-amber-900 text-sm mb-2">Résultats de la recherche (<span id="searchCount">0</span>)</h3>
+            <div id="searchResultsList" class="space-y-2 max-h-60 overflow-y-auto text-xs text-amber-950"></div>
+        </div>
+    </div>
+
+    <!-- Contenu Principal -->
+    <main class="flex-grow max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6">
+
+        <!-- SECTION 1: VUE D'ENSEMBLE -->
+        <section id="sec-overview" class="tab-content block space-y-6">
+            <!-- Introduction de Section -->
+            <div class="bg-white rounded-2xl p-6 shadow-sm border border-slate-200">
+                <div class="flex items-start justify-between">
+                    <div>
+                        <span class="inline-block px-3 py-1 bg-blue-100 text-blue-800 text-xs font-semibold rounded-full mb-2">Diagnostic Macro</span>
+                        <h1 class="text-2xl sm:text-3xl font-extrabold text-slate-900">Le Paradoxe Démocratique Belge</h1>
+                    </div>
+                    <span class="text-3xl hidden sm:inline">🏛️</span>
+                </div>
+                <p class="mt-3 text-slate-600 text-sm sm:text-base leading-relaxed">
+                    La Belgique s'érige comme un laboratoire politique d'une complexité sans pareille, qualifié de régime de la « crise permanente ». Ce module présente le diagnostic synthétique de l'exercice démocratique belge : un système conçu pour la pacification des clivages historiques (linguistiques, philosophiques, socio-économiques) qui engendre aujourd'hui une paralysie décisionnelle, une partitocratie verrouillée et une défiance citoyenne croissante.
+                </p>
+            </div>
+
+            <!-- Cartes d'Indicateurs Clés -->
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm hover:shadow-md transition">
+                    <div class="text-xs font-semibold text-slate-500 uppercase">Satisfaction de Vie vs Démocratie</div>
+                    <div class="flex items-baseline justify-between mt-2">
+                        <span class="text-2xl font-bold text-slate-900">87% <span class="text-xs text-slate-500 font-normal">Vie</span></span>
+                        <span class="text-2xl font-bold text-rose-600">55% <span class="text-xs text-slate-500 font-normal">Démocratie</span></span>
+                    </div>
+                    <p class="text-xs text-slate-500 mt-2">Écart frappant mesuré fin 2024 / début 2025 (Eurobaromètre).</p>
+                </div>
+
+                <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm hover:shadow-md transition">
+                    <div class="text-xs font-semibold text-slate-500 uppercase">Financement Public Partis</div>
+                    <div class="text-3xl font-extrabold text-blue-600 mt-2">83,7 M€</div>
+                    <p class="text-xs text-slate-500 mt-2">Dotations publiques directes versées aux partis belges en 2024 (~77% de leurs revenus).</p>
+                </div>
+
+                <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm hover:shadow-md transition">
+                    <div class="text-xs font-semibold text-slate-500 uppercase">Participation Flandre (Oct 2024)</div>
+                    <div class="flex items-baseline justify-between mt-2">
+                        <span class="text-2xl font-bold text-rose-600">63,5%</span>
+                        <span class="text-xs text-slate-400 line-through">92,6% (2018)</span>
+                    </div>
+                    <p class="text-xs text-slate-500 mt-2">Chute massive suite à l'abolition du vote obligatoire (1,8M d'abstentions).</p>
+                </div>
+
+                <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm hover:shadow-md transition">
+                    <div class="text-xs font-semibold text-slate-500 uppercase">Confiance envers les Partis</div>
+                    <div class="text-3xl font-extrabold text-rose-600 mt-2">33 - 44%</div>
+                    <p class="text-xs text-slate-500 mt-2">Institution la moins populaire selon les données IWEPS / ESS 2023.</p>
+                </div>
+            </div>
+
+            <!-- Graphique Synthétique de Confiance vs Préoccupations -->
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm">
+                    <h2 class="text-lg font-bold text-slate-900 mb-1">Niveau de Confiance Politique Régional (2023)</h2>
+                    <p class="text-xs text-slate-500 mb-4">Proportion de citoyens ayant un score de confiance > 5/10 (Source: IWEPS / ESS 2023).</p>
+                    <div class="chart-container">
+                        <canvas id="overviewTrustChart"></canvas>
+                    </div>
+                </div>
+
+                <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm flex flex-col justify-between">
+                    <div>
+                        <h2 class="text-lg font-bold text-slate-900 mb-1">Principales Préoccupations des Belges</h2>
+                        <p class="text-xs text-slate-500 mb-4">Focus sur les enjeux socio-économiques et la dette (Source: Eurobaromètre 2024/2025).</p>
+                        <div class="space-y-3">
+                            <div>
+                                <div class="flex justify-between text-xs font-semibold mb-1">
+                                    <span>Guerre en Ukraine (Menace directe de sécurité)</span>
+                                    <span class="text-blue-600">72%</span>
+                                </div>
+                                <div class="w-full bg-slate-100 rounded-full h-2">
+                                    <div class="bg-blue-600 h-2 rounded-full" style="width: 72%"></div>
+                                </div>
+                            </div>
+                            <div>
+                                <div class="flex justify-between text-xs font-semibold mb-1">
+                                    <span>Inquiétude Dette Publique (vs 12% moyenne UE)</span>
+                                    <span class="text-rose-600">30%</span>
+                                </div>
+                                <div class="w-full bg-slate-100 rounded-full h-2">
+                                    <div class="bg-rose-600 h-2 rounded-full" style="width: 30%"></div>
+                                </div>
+                            </div>
+                            <div>
+                                <div class="flex justify-between text-xs font-semibold mb-1">
+                                    <span>Coût de la vie & Inflation</span>
+                                    <span class="text-amber-600">27%</span>
+                                </div>
+                                <div class="w-full bg-slate-100 rounded-full h-2">
+                                    <div class="bg-amber-600 h-2 rounded-full" style="width: 27%"></div>
+                                </div>
+                            </div>
+                            <div>
+                                <div class="flex justify-between text-xs font-semibold mb-1">
+                                    <span>Immigration</span>
+                                    <span class="text-slate-600">22%</span>
+                                </div>
+                                <div class="w-full bg-slate-100 rounded-full h-2">
+                                    <div class="bg-slate-600 h-2 rounded-full" style="width: 22%"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="mt-4 p-3 bg-slate-50 rounded-lg text-xs text-slate-600 border border-slate-200">
+                        💡 <strong>Analyse :</strong> La préoccupation anormalement élevée pour la dette publique (30% vs 12% dans l'UE) témoigne d'un doute profond quant à la capacité de gestion budgétaire des coalitions consociatives.
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- SECTION 2: CONSOCIATIVISME & FÉDÉRALISME -->
+        <section id="sec-consociational" class="tab-content hidden space-y-6">
+            <!-- Introduction de Section -->
+            <div class="bg-white rounded-2xl p-6 shadow-sm border border-slate-200">
+                <span class="inline-block px-3 py-1 bg-amber-100 text-amber-800 text-xs font-semibold rounded-full mb-2">Théorie & Institutions</span>
+                <h1 class="text-2xl font-extrabold text-slate-900">Le Modèle Consociatif & Le Fédéralisme Centrifuge</h1>
+                <p class="mt-3 text-slate-600 text-sm leading-relaxed">
+                    Selon le politologue Arend Lijphart, la Belgique est l'exemple le plus parfait de démocratie consociative : un système où la stabilité repose sur la coopération pacifiée des élites au sein de sociétés culturellement ou linguistiquement fragmentées. Ce module décortique les quatre piliers de cette ingénierie, ses mécanismes de protection des minorités (Sonnette d'alarme), les rigidités du fédéralisme centrifuge et le verrou de l'Article 195 de la Constitution.
+                </p>
+            </div>
+
+            <!-- Les 4 Piliers Consociatifs -->
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                <div class="bg-white p-4 rounded-xl border-l-4 border-blue-600 shadow-sm">
+                    <h3 class="font-bold text-slate-900 text-sm">1. Grandes Coalitions</h3>
+                    <p class="text-xs text-slate-600 mt-1">Partage obligatoire du pouvoir ministériel. Parité linguistique garantie par la Constitution au Conseil des Ministres fédéral.</p>
+                </div>
+                <div class="bg-white p-4 rounded-xl border-l-4 border-amber-500 shadow-sm">
+                    <h3 class="font-bold text-slate-900 text-sm">2. Compromis Systématique</h3>
+                    <p class="text-xs text-slate-600 mt-1">Négociations à huis clos « au finish », souvent nocturnes, privilégiant la pacification au détriment de la transparence.</p>
+                </div>
+                <div class="bg-white p-4 rounded-xl border-l-4 border-emerald-500 shadow-sm">
+                    <h3 class="font-bold text-slate-900 text-sm">3. Proportionnalité</h3>
+                    <p class="text-xs text-slate-600 mt-1">Distribution proportionnelle des ressources publiques, mandats administratifs et financements entre les segments sociétaux.</p>
+                </div>
+                <div class="bg-white p-4 rounded-xl border-l-4 border-rose-500 shadow-sm">
+                    <h3 class="font-bold text-slate-900 text-sm">4. Veto Mutuel</h3>
+                    <p class="text-xs text-slate-600 mt-1">Garantie contre la tyrannie de la majorité linguistique via des mécanismes constitutionnels comme la Sonnette d'Alarme.</p>
+                </div>
+            </div>
+
+            <!-- Exploration Interactive : Sonnette d'Alarme & Article 195 -->
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <!-- Carte Sonnette d'Alarme -->
+                <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm">
+                    <div class="flex justify-between items-center mb-4">
+                        <h2 class="text-lg font-bold text-slate-900">Mécanisme de la « Sonnette d'Alarme »</h2>
+                        <span class="text-xs bg-rose-100 text-rose-800 px-2.5 py-1 rounded-full font-medium">Protection Linguistique</span>
+                    </div>
+                    <p class="text-xs text-slate-600 mb-4">
+                        Instauré pour empêcher la majorité flamande d'imposer unilatéralement des lois touchant aux intérêts vitaux de la communauté francophone.
+                    </p>
+                    <div class="space-y-3">
+                        <div class="p-3 bg-slate-50 rounded-lg border border-slate-200">
+                            <div class="font-semibold text-xs text-slate-800">Étape 1 : Motion Signée</div>
+                            <p class="text-xs text-slate-600 mt-0.5">Requiert la signature d'au moins 3/4 des membres d'un groupe linguistique à la Chambre.</p>
+                        </div>
+                        <div class="p-3 bg-slate-50 rounded-lg border border-slate-200">
+                            <div class="font-semibold text-xs text-slate-800">Étape 2 : Suspension de la Procédure</div>
+                            <p class="text-xs text-slate-600 mt-0.5">La discussion parlementaire est immédiatement interrompue. Le dossier est renvoyé au Conseil des Ministres.</p>
+                        </div>
+                        <div class="p-3 bg-amber-50 rounded-lg border border-amber-200 text-amber-900">
+                            <div class="font-semibold text-xs">Étape 3 : Avis Gouvernemental (30 jours)</div>
+                            <p class="text-xs mt-0.5">Le gouvernement paritaire doit émettre un avis motivé ou un amendement de compromis pour éviter une crise majeure.</p>
+                        </div>
+                    </div>
+                    <div class="mt-4 text-xs text-slate-500 italic">
+                        <strong>L'atrophie du débat :</strong> En étouffant les votes majoritaires, la Sonnette déplace le débat politique hors du Parlement vers des cabinets ministériels opaques.
+                    </div>
+                </div>
+
+                <!-- Le Verrou de l'Article 195 -->
+                <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm flex flex-col justify-between">
+                    <div>
+                        <div class="flex justify-between items-center mb-3">
+                            <h2 class="text-lg font-bold text-slate-900">Le Verrou Constitutionnel (Art. 195)</h2>
+                            <span class="text-xs bg-slate-200 text-slate-800 px-2.5 py-1 rounded-full font-medium">Rigidité Maximale</span>
+                        </div>
+                        <p class="text-xs text-slate-600 mb-3">
+                            Qualifié par la Commission de Venise comme l'un des dispositifs les plus rigides au monde (aux côtés de la Constitution américaine), l'article 195 régit toute révision institutionnelle :
+                        </p>
+                        <ol class="list-decimal list-inside space-y-2 text-xs text-slate-700 bg-slate-50 p-3 rounded-lg border border-slate-200">
+                            <li><strong>Déclaration tripartie :</strong> Adoption d'une liste d'articles à réviser par la Chambre, le Sénat et le Roi.</li>
+                            <li><strong>Dissolution automatique :</strong> Dissolution immédiate des deux Chambres et convocation d'élections dans les 40 jours.</li>
+                            <li><strong>Vote qualifié :</strong> Nouvelles Chambres devant réunir un quorum des 2/3 et une majorité des 2/3.</li>
+                        </ol>
+                    </div>
+
+                    <div class="mt-4 p-4 bg-blue-50 border border-blue-200 rounded-xl">
+                        <h4 class="font-bold text-xs text-blue-900">Actualité Récente : Réforme de l'Art. 195 & Sénat</h4>
+                        <p class="text-xs text-blue-800 mt-1 leading-relaxed">
+                            La Chambre a approuvé la révision de l'Art. 195 en vue de la <strong>suppression pure et simple du Sénat</strong> (soutenue par la majorité, le Vlaams Belang et Groen, mais opposée par le PS, Ecolo et DéFI). Par le passé, des « dispositions transitoires » controversées ont dû être insérées pour éviter des dissolutions répétées.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- SECTION 3: PARTICRATIE & CARTEL -->
+        <section id="sec-particracy" class="tab-content hidden space-y-6">
+            <!-- Introduction de Section -->
+            <div class="bg-white rounded-2xl p-6 shadow-sm border border-slate-200">
+                <span class="inline-block px-3 py-1 bg-rose-100 text-rose-800 text-xs font-semibold rounded-full mb-2">Sociologie du Pouvoir</span>
+                <h1 class="text-2xl font-extrabold text-slate-900">La Particratie & La Thèse du Cartel Party</h1>
+                <p class="mt-3 text-slate-600 text-sm leading-relaxed">
+                    La Belgique représente l'idéal-type européen de la particratie : un système où les présidents de partis monopolisent le processus décisionnel, reléguant le Parlement à une simple chambre de ratification. Ce module explicite la théorie du « Cartel Party » (Katz & Mair) et le rôle prépondérant des « staffers » (collaborateurs non élus), ainsi que l'hyper-fragmentation politique (coalition De Croo à 7 partis).
+                </p>
+            </div>
+
+            <!-- Grille d'Analyse du Cartel Party -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm">
+                    <div class="w-10 h-10 rounded-lg bg-blue-100 text-blue-700 flex items-center justify-center font-bold text-lg mb-3">🏢</div>
+                    <h3 class="font-bold text-slate-900 text-base">Du Parti de Masse au Parti d'État</h3>
+                    <p class="text-xs text-slate-600 mt-2 leading-relaxed">
+                        Face au déclin des militants et des piliers traditionnels (syndicats, mutuelles), les partis belges se sont transformés en agences semi-étatiques dépendantes des ressources publiques.
+                    </p>
+                </div>
+
+                <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm">
+                    <div class="w-10 h-10 rounded-lg bg-amber-100 text-amber-700 flex items-center justify-center font-bold text-lg mb-3">🔒</div>
+                    <h3 class="font-bold text-slate-900 text-base">Verrouillage de la Concurrence</h3>
+                    <p class="text-xs text-slate-600 mt-2 leading-relaxed">
+                        Les partis en place s'entendent pour ériger des barrières à l'entrée : seuil électoral de 5%, répartition avantageuse des temps d'antenne et financement public massif capté à près de 90%.
+                    </p>
+                </div>
+
+                <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm">
+                    <div class="w-10 h-10 rounded-lg bg-rose-100 text-rose-700 flex items-center justify-center font-bold text-lg mb-3">👔</div>
+                    <h3 class="font-bold text-slate-900 text-base">L'Élite Invisible : Les « Staffers »</h3>
+                    <p class="text-xs text-slate-600 mt-2 leading-relaxed">
+                        Des centaines de conseillers, secrétaires de cabinets et chercheurs des services d'études de partis contrôlent la rédaction des lois, créant un déséquilibre flagrant d'information face aux députés.
+                    </p>
+                </div>
+            </div>
+
+            <!-- Exemple Concret : Discipline de Coalition vs Libres Debats -->
+            <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm">
+                <h2 class="text-lg font-bold text-slate-900 mb-2">Cas d'Équipage : Le Blocage du Débat sur l'Avortement (2020)</h2>
+                <div class="p-4 bg-slate-50 rounded-xl border border-slate-200 text-xs text-slate-700 space-y-2">
+                    <p>
+                        <strong>Situation :</strong> À l'été 2020, une majorité de parlementaires était favorable à l'allongement du délai légal pour l'interruption volontaire de grossesse (IVG).
+                    </p>
+                    <p>
+                        <strong>Dérive particratique :</strong> Le parti CD&V a exigé que cet enjeu sociétal ne soit pas voté au Parlement, en faisant une « affaire de gouvernement » conditionnant sa participation à la coalition. La liberté de conscience des élus a été directement subordonnée à la survie du pacte gouvernemental.
+                    </p>
+                    <div class="text-rose-700 font-semibold pt-1">
+                        👉 Key Takeaway : Le parlementarisme délibératif est sacrifié sur l'autel de la stabilité des coalitions multipartites (coalitions à 7 partis comme le gouvernement De Croo).
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- SECTION 4: FINANCEMENT DES PARTIS -->
+        <section id="sec-finance" class="tab-content hidden space-y-6">
+            <!-- Introduction de Section -->
+            <div class="bg-white rounded-2xl p-6 shadow-sm border border-slate-200">
+                <span class="inline-block px-3 py-1 bg-emerald-100 text-emerald-800 text-xs font-semibold rounded-full mb-2">Économie Politique</span>
+                <h1 class="text-2xl font-extrabold text-slate-900">Le Financement des Partis : Une Manna d'État</h1>
+                <p class="mt-3 text-slate-600 text-sm leading-relaxed">
+                    Instaurée par la loi Dhoore de 1989 à la suite du scandale Agusta pour moraliser la vie politique, la législation sur le financement a créé une dépendance quasi absolue envers les dotations de l'État. Ce module permet d'explorer en détail les revenus 2024 des 12 principaux partis belges (analyse basée sur les données de la KU Leuven), leur patrimoine net accumulé (156,8 M€ au total) et leurs dépenses massives sur les réseaux sociaux.
+                </p>
+            </div>
+
+            <!-- Filtres et Contrôles du Graphique -->
+            <div class="bg-white p-4 rounded-xl border border-slate-200 flex flex-wrap items-center justify-between gap-3">
+                <div class="flex items-center space-x-2">
+                    <label for="chartTypeSelect" class="text-xs font-semibold text-slate-700">Métrique :</label>
+                    <select id="chartTypeSelect" onchange="updateFinanceChart()" class="bg-slate-50 border border-slate-300 rounded-lg text-xs px-2.5 py-1.5 focus:outline-none">
+                        <option value="total">Revenus Totaux (Millions €)</option>
+                        <option value="subsidies">Part des Subventions Directes (%)</option>
+                        <option value="mandataires">Part des Contributions Mandataires (%)</option>
+                        <option value="members">Part des Cotisations Membres (%)</option>
+                    </select>
+                </div>
+                <div class="text-xs text-slate-500">
+                    Source : <em>Analyse de la comptabilité des partis politiques (2024) par la KU Leuven</em>
+                </div>
+            </div>
+
+            <!-- Visualisation du Financement -->
+            <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm">
+                <h2 class="text-lg font-bold text-slate-900 mb-1" id="financeChartTitle">Revenus Totaux des Partis Politiques Belges (2024)</h2>
+                <p class="text-xs text-slate-500 mb-4">Passez votre curseur sur les barres pour afficher la composition exacte.</p>
+                <div class="chart-container">
+                    <canvas id="financeChart"></canvas>
+                </div>
+            </div>
+
+            <!-- Tableau Filtrable et Triable des 12 Partis -->
+            <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+                <div class="p-4 border-b border-slate-200 flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-slate-50">
+                    <div>
+                        <h3 class="font-bold text-slate-900 text-sm">Tableau Détaillé des Revenus des Partis (2024)</h3>
+                        <p class="text-xs text-slate-500">Cliquez sur les en-têtes de colonnes pour trier les données.</p>
+                    </div>
+                    <input type="text" id="partyTableFilter" onkeyup="filterPartyTable()" placeholder="Filtrer un parti..." class="bg-white border border-slate-300 rounded-lg px-3 py-1 text-xs focus:outline-none w-48">
+                </div>
+
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left text-xs border-collapse" id="partyTable">
+                        <thead>
+                            <tr class="bg-slate-100 border-b border-slate-200 text-slate-700 font-semibold cursor-pointer select-none">
+                                <th onclick="sortPartyTable(0)" class="p-3 hover:bg-slate-200">Parti Politique ⇳</th>
+                                <th onclick="sortPartyTable(1)" class="p-3 hover:bg-slate-200 text-right">Revenus Totaux (M€) ⇳</th>
+                                <th onclick="sortPartyTable(2)" class="p-3 hover:bg-slate-200 text-right">Subventions Directes (%) ⇳</th>
+                                <th onclick="sortPartyTable(3)" class="p-3 hover:bg-slate-200 text-right">Contrib. Mandataires (%) ⇳</th>
+                                <th onclick="sortPartyTable(4)" class="p-3 hover:bg-slate-200 text-right">Cotisations Membres (%) ⇳</th>
+                            </tr>
+                        </thead>
+                        <tbody id="partyTableBody" class="divide-y divide-slate-200 text-slate-700">
+                            <!-- Rempli dynamiquement en JS -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Défocus sur le Patrimoine & Réseaux Sociaux -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm">
+                    <h4 class="font-bold text-sm text-slate-900 mb-2">💰 Patrimoine Accumulé</h4>
+                    <p class="text-xs text-slate-600 leading-relaxed">
+                        Le patrimoine net total des partis a atteint <strong>156,8 millions d'euros</strong> fin 2021 (triplement en 20 ans). La <strong>N-VA</strong> est le parti le plus riche avec <strong>26,3 M€</strong> de patrimoine net en 2024. À l'opposé, <strong>DéFi</strong> présente un patrimoine net négatif (-313.526 €).
+                    </p>
+                </div>
+                <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm">
+                    <h4 class="font-bold text-sm text-slate-900 mb-2">📱 Dépenses Publiques & Réseaux Sociaux</h4>
+                    <p class="text-xs text-slate-600 leading-relaxed">
+                        Les partis belges consacrent entre <strong>17% et 35%</strong> de leur budget total (9 à 27 M€) en pub en ligne. Cette personnalisation contourne les médias traditionnels et alimente la polarisation, financée à 90% par le contribuable.
+                    </p>
+                </div>
+            </div>
+        </section>
+
+        <!-- SECTION 5: FRACTURE & ÉLECTIONS 2024 -->
+        <section id="sec-fracture" class="tab-content hidden space-y-6">
+            <!-- Introduction de Section -->
+            <div class="bg-white rounded-2xl p-6 shadow-sm border border-slate-200">
+                <span class="inline-block px-3 py-1 bg-rose-100 text-rose-800 text-xs font-semibold rounded-full mb-2">Choc Électoral</span>
+                <h1 class="text-2xl font-extrabold text-slate-900">La Fracture Démocratique & Le Séisme d'Octobre 2024</h1>
+                <p class="mt-3 text-slate-600 text-sm leading-relaxed">
+                    Le 13 octobre 2024, la Flandre a aboli pour la première fois l'obligation de vote (*opkomstplicht*) lors des élections locales et provinciales. Ce module analyse le contrecoup massif de cette réforme : effondrement de la participation à 63,5% (1,8 million d'abstentionnistes), émergence du droit d'initiative (*initiatiefrecht*), mais aussi hausse inattendue de l'élection de femmes dans les conseils.
+                </p>
+            </div>
+
+            <!-- Comparatif Avant / Après Abolition -->
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <!-- Graphique de Participation -->
+                <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm">
+                    <h2 class="text-lg font-bold text-slate-900 mb-1">Impact sur la Participation Électorale en Flandre</h2>
+                    <p class="text-xs text-slate-500 mb-4">Chute spectaculaire entre le scrutin de 2018 (avec obligation) et 2024 (sans obligation).</p>
+                    <div class="chart-container">
+                        <canvas id="turnoutChart"></canvas>
+                    </div>
+                </div>
+
+                <!-- Analyse des Résultats Locaux 2024 -->
+                <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm flex flex-col justify-between">
+                    <div>
+                        <h2 class="text-lg font-bold text-slate-900 mb-2">Les Chiffres Chocs du « Zijlijnzondag »</h2>
+                        <ul class="space-y-3 text-xs text-slate-700">
+                            <li class="p-2.5 bg-rose-50 border border-rose-200 rounded-lg">
+                                <strong>Abstention Historique :</strong> 1 800 000 électeurs flamands sur 5 millions ont déserté les urnes (taux de participation de 63,5%).
+                            </li>
+                            <li class="p-2.5 bg-slate-50 border border-slate-200 rounded-lg">
+                                <strong>Disparités Communales :</strong> Taux le plus bas enregistré à <strong>Eeklo (53,7%)</strong> contre <strong>81,7% à Mesen</strong>.
+                            </li>
+                            <li class="p-2.5 bg-slate-50 border border-slate-200 rounded-lg">
+                                <strong>Listes Uniques :</strong> Dans 118 communes, une seule liste a emporté la majorité absolue (fréquemment le cd&v).
+                            </li>
+                            <li class="p-2.5 bg-emerald-50 border border-emerald-200 rounded-lg text-emerald-900">
+                                <strong>Effet Positif Paradoxal :</strong> La proportion de femmes élues a progressé, passant de 38,4% (2018) à <strong>41,7% en 2024</strong> (3 007 élues communales).
+                            </li>
+                        </ul>
+                    </div>
+
+                    <!-- Encadré Initiatiefrecht -->
+                    <div class="mt-4 p-3 bg-amber-50 border border-amber-200 rounded-xl text-xs text-amber-900">
+                        <strong>Nouveau Décret « Lokaal Bestuur » :</strong> Introduction du droit d'initiative (<em>initiatiefrecht</em>). Le candidat obtenant le plus de voix sur la liste arrivée en tête dispose de 14 jours exclusifs pour tenter de former une coalition.
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- SECTION 6: CORDON SANITAIRE -->
+        <section id="sec-cordon" class="tab-content hidden space-y-6">
+            <!-- Introduction de Section -->
+            <div class="bg-white rounded-2xl p-6 shadow-sm border border-slate-200">
+                <span class="inline-block px-3 py-1 bg-blue-100 text-blue-800 text-xs font-semibold rounded-full mb-2">Digues & Polarisations</span>
+                <h1 class="text-2xl font-extrabold text-slate-900">Le Cordon Sanitaire : Asymétrie Nord-Sud & Réseaux Sociaux</h1>
+                <p class="mt-3 text-slate-600 text-sm leading-relaxed">
+                    Né du « Dimanche Noir » de décembre 1991, le cordon sanitaire vise à isoler l'extrême droite. Ce module permet de comparer le cordon politique (partagé dans tout le pays) et le cordon médiatique (exclusivité francophone encadrée par le Pacte Culturel de 1973 et le CDJ), tout en analysant son contournement systématique via les plateformes numériques.
+                </p>
+            </div>
+
+            <!-- Interrupteur de Comparaison Interactif -->
+            <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm">
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6 border-b border-slate-200 pb-4">
+                    <div>
+                        <h2 class="text-lg font-bold text-slate-900">Comparateur du Cordon Médiatique</h2>
+                        <p class="text-xs text-slate-500">Sélectionnez une région pour explorer la doctrine appliquée aux médias.</p>
+                    </div>
+                    <div class="flex space-x-2">
+                        <button onclick="setCordonRegion('south')" id="btn-cordon-south" class="px-4 py-2 rounded-lg text-xs font-bold bg-blue-600 text-white shadow-sm">Wallonie / Bruxelles (Francophone)</button>
+                        <button onclick="setCordonRegion('north')" id="btn-cordon-north" class="px-4 py-2 rounded-lg text-xs font-bold bg-slate-100 text-slate-700 hover:bg-slate-200">Flandre (Néerlandophone)</button>
+                    </div>
+                </div>
+
+                <!-- Zone d'Affichage Dynamique Cordon -->
+                <div id="cordonDisplayArea" class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <!-- Rempli par JavaScript -->
+                </div>
+            </div>
+
+            <!-- L'Échappatoire des Réseaux Sociaux -->
+            <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm">
+                <h2 class="text-lg font-bold text-slate-900 mb-2">Le Contournement Numérique : L'Exemple du Parti « Chez Nous »</h2>
+                <p class="text-xs text-slate-600 mb-4 leading-relaxed">
+                    Bien que totalement exclu des médias traditionnels francophones (RTBF, RTL) par le cordon médiatique, le parti d'extrême droite <strong>« Chez Nous »</strong> (0,92% des voix en juin 2024) génère un engagement massif sur Facebook.
+                </p>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
+                    <div class="p-4 bg-slate-50 border border-slate-200 rounded-xl">
+                        <div class="font-bold text-slate-800 text-sm mb-1">Confiance envers les Réseaux vs Télévision</div>
+                        <div class="flex justify-between items-center mt-2">
+                            <span>Télévision (Médias Trad) :</span>
+                            <span class="font-bold text-blue-600">69% de confiance</span>
+                        </div>
+                        <div class="flex justify-between items-center mt-1">
+                            <span>Réseaux Sociaux :</span>
+                            <span class="font-bold text-rose-600">23% de confiance</span>
+                        </div>
+                        <p class="text-[11px] text-slate-500 mt-2">Pourtant, c'est sur les réseaux que les bulles d'information algorithmiques prospèrent sans régulation critique.</p>
+                    </div>
+                    <div class="p-4 bg-amber-50 border border-amber-200 rounded-xl text-amber-950">
+                        <div class="font-bold text-sm mb-1">Multiplicateur d'Engagement</div>
+                        <p class="mt-1 leading-relaxed">
+                            Ses publications atteignent régulièrement <strong>plus de 1 000 interactions</strong> sur Facebook, soit un taux d'engagement par publication <strong>10 fois supérieur</strong> à la moyenne de grands partis établis comme le PS ou le PTB.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- SECTION 7: INNOVATIONS DÉLIBÉRATIVES -->
+        <section id="sec-deliberative" class="tab-content hidden space-y-6">
+            <!-- Introduction de Section -->
+            <div class="bg-white rounded-2xl p-6 shadow-sm border border-slate-200">
+                <span class="inline-block px-3 py-1 bg-emerald-100 text-emerald-800 text-xs font-semibold rounded-full mb-2">Laboratoire Démocratique</span>
+                <h1 class="text-2xl font-extrabold text-slate-900">Les Mini-Publics : Ostbelgien & Commissions Bruxelloises</h1>
+                <p class="mt-3 text-slate-600 text-sm leading-relaxed">
+                    Pour pallier le blocage particratique, la Belgique est devenue un pionnier mondial de l'innovation délibérative par tirage au sort. Ce module compare les deux modèles phares : le modèle permanent d'Ostbelgien (salué par l'OCDE) et les Commissions Délibératives mixtes de Bruxelles, tout en analysant leurs limites structurelles.
+                </p>
+            </div>
+
+            <!-- Grille Comparative des Modèles -->
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <!-- Modèle Ostbelgien -->
+                <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm flex flex-col justify-between">
+                    <div>
+                        <div class="flex justify-between items-start mb-3">
+                            <h2 class="text-lg font-bold text-slate-900">Modèle d'Ostbelgien (Bürgerrat)</h2>
+                            <span class="text-xs bg-emerald-100 text-emerald-800 font-bold px-2.5 py-1 rounded-full">Pionnier Permanent (2019)</span>
+                        </div>
+                        <p class="text-xs text-slate-600 mb-4">
+                            Modèle ancré dans la loi de la Communauté germanophone. Combine un Conseil Citoyen permanent et des Assemblées thématiques.
+                        </p>
+                        <div class="space-y-2 text-xs text-slate-700">
+                            <div class="p-3 bg-slate-50 rounded-lg">
+                                <strong>Bürgerrat (24 citoyens) :</strong> Mandat de 18 mois, pouvoir direct d'agenda-setting (choix des sujets).
+                            </div>
+                            <div class="p-3 bg-slate-50 rounded-lg">
+                                <strong>Bürgerversammlungen (25-50 citoyens) :</strong> Panels thématiques élaborant les recommandations législatives.
+                            </div>
+                            <div class="p-3 bg-emerald-50 text-emerald-900 rounded-lg font-medium">
+                                <strong>Obligation « Comply or Explain » :</strong> Le Parlement est légalement tenu d'examiner et de débattre publiquement de chaque proposition sous peine d'explication formelle.
+                            </div>
+                        </div>
+                    </div>
+                    <div class="mt-4 pt-3 border-t border-slate-200 text-xs text-slate-500">
+                        💰 Coût : ~400 000 € / an. Défis : Fatigue participative, notoriété locale modeste.
+                    </div>
+                </div>
+
+                <!-- Modèle Bruxelles -->
+                <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm flex flex-col justify-between">
+                    <div>
+                        <div class="flex justify-between items-start mb-3">
+                            <h2 class="text-lg font-bold text-slate-900">Commissions Délibératives Bruxelloises</h2>
+                            <span class="text-xs bg-blue-100 text-blue-800 font-bold px-2.5 py-1 rounded-full">Mixte Élution / Tirage (2019)</span>
+                        </div>
+                        <p class="text-xs text-slate-600 mb-4">
+                            Commissions parlementaires mixtes réunissant 15 députés et 45 citoyens tirés au sort.
+                        </p>
+                        <div class="space-y-2 text-xs text-slate-700">
+                            <div class="p-3 bg-slate-50 rounded-lg">
+                                <strong>Composition :</strong> 1/4 d'élus politiques + 3/4 de citoyens bruxellois dès 16 ans.
+                            </div>
+                            <div class="p-3 bg-slate-50 rounded-lg">
+                                <strong>Thématiques Traitées :</strong> Déploiement 5G (43 recs), Sans-abrisme (97 recs), Biodiversité urbaine.
+                            </div>
+                            <div class="p-3 bg-blue-50 text-blue-900 rounded-lg font-medium">
+                                <strong>Pression Morale du Vote :</strong> Le vote des citoyens est consultatif, mais le vote des 15 députés est public et doit être motivé devant les citoyens.
+                            </div>
+                        </div>
+                    </div>
+                    <div class="mt-4 pt-3 border-t border-slate-200 text-xs text-slate-500">
+                        ⚠️ Risques : Dérive vers des cabinets de conseil privés, contournement des syndicats, manque d'inclusion des sans-voix.
+                    </div>
+                </div>
+            </div>
+
+            <!-- Synthèse des Limites Délibératives -->
+            <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm">
+                <h3 class="font-bold text-slate-900 text-sm mb-2">Synthèse Critique des Risques Délibératifs</h3>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-xs text-slate-600">
+                    <div class="p-3 bg-slate-50 rounded-lg border border-slate-200">
+                        <strong>1. Caution Démocratique :</strong> Risque d'utilisation des mini-publics comme « fabriques de légitimité » pour faire avaliser des décisions impopulaires par les élites.
+                    </div>
+                    <div class="p-3 bg-slate-50 rounded-lg border border-slate-200">
+                        <strong>2. Fatigue du Bétonnage :</strong> Les réunions de week-end découragent les publics précarisés. Proposition d'un <em>Congé Citoyenneté</em> légal.
+                    </div>
+                    <div class="p-3 bg-slate-50 rounded-lg border border-slate-200">
+                        <strong>3. Élimination des Sans-Voix :</strong> Inviter des personnes en situation d'extrême précarité sans accompagnement renforcé peut être perçu comme une violence administrative.
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Pied de Page -->
+    <footer class="bg-slate-900 text-slate-400 text-xs py-8 border-t border-slate-800 mt-12">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col md:flex-row justify-between items-center gap-4">
+            <div>
+                <p class="font-semibold text-white">Analyse Critique de l'Exercice Démocratique en Belgique</p>
+                <p class="text-slate-500 mt-0.5">Basé sur les rapports scientifiques, données KU Leuven 2024, IWEPS / ESS & Eurobaromètre.</p>
+            </div>
+            <div class="flex space-x-4">
+                <a href="#mainNav" class="hover:text-white transition">Haut de page ↑</a>
+            </div>
+        </div>
+    </footer>
+
+    <!-- LOGIQUE JAVASCRIPT EXCLUSIVEMENT VANILLA -->
+    <script>
+        // Data Store des Partis Politiques (Basé sur le rapport, données KU Leuven 2024)
+        const partiesData = [
+            { name: "N-VA", subsidies: 84.4, mandataires: 4.8, members: 2.1, total: 14.5, netWealth: 26.3 },
+            { name: "PTB", subsidies: 54.3, mandataires: 23.1, members: 17.8, total: 13.6, netWealth: null },
+            { name: "PS", subsidies: 70.1, mandataires: 15.5, members: 2.5, total: 13.4, netWealth: null },
+            { name: "Vlaams Belang", subsidies: 81.8, mandataires: 7.1, members: 0.6, total: 11.8, netWealth: null },
+            { name: "MR", subsidies: 80.9, mandataires: 3.0, members: 3.9, total: 11.3, netWealth: null },
+            { name: "cd&v", subsidies: 82.4, mandataires: 3.8, members: 2.6, total: 8.5, netWealth: null },
+            { name: "Ecolo", subsidies: 67.6, mandataires: 22.0, members: 0.5, total: 8.3, netWealth: null },
+            { name: "Vooruit", subsidies: 85.2, mandataires: 7.2, members: 1.9, total: 6.9, netWealth: null },
+            { name: "Les Engagés", subsidies: 88.1, mandataires: 3.7, members: 1.5, total: 6.5, netWealth: null },
+            { name: "Open Vld", subsidies: 90.8, mandataires: 0.4, members: 1.3, total: 6.4, netWealth: null },
+            { name: "Groen", subsidies: 78.5, mandataires: 13.4, members: 1.9, total: 6.1, netWealth: null },
+            { name: "DéFi", subsidies: 78.0, mandataires: 17.8, members: 1.8, total: 1.4, netWealth: -0.31 }
+        ];
+
+        // Instance Chart.js Globale
+        let financeChartInstance = null;
+        let overviewTrustChartInstance = null;
+        let turnoutChartInstance = null;
+
+        // Gestion de la Navigation par Onglets
+        function switchTab(tabId) {
+            // Masquer tout le contenu
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
+            // Dé-sélectionner tous les boutons
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.classList.remove('bg-blue-600', 'text-white');
+                btn.classList.add('text-slate-300', 'hover:bg-slate-800');
+            });
+
+            // Activer l'onglet choisi
+            const targetSec = document.getElementById(`sec-${tabId}`);
+            if (targetSec) targetSec.classList.remove('hidden');
+
+            const activeBtn = document.getElementById(`tab-${tabId}`);
+            if (activeBtn) {
+                activeBtn.classList.add('bg-blue-600', 'text-white');
+                activeBtn.classList.remove('text-slate-300', 'hover:bg-slate-800');
+            }
+
+            // Initialisation conditionnelle des graphiques
+            if (tabId === 'finance' && !financeChartInstance) {
+                initFinanceChart();
+            } else if (tabId === 'fracture' && !turnoutChartInstance) {
+                initTurnoutChart();
+            }
+        }
+
+        // Search Bar Functionality
+        function handleGlobalSearch() {
+            const query = document.getElementById('globalSearch').value.toLowerCase().trim();
+            const resultsModal = document.getElementById('searchResultsModal');
+            const resultsList = document.getElementById('searchResultsList');
+            const searchCount = document.getElementById('searchCount');
+
+            if (query.length < 2) {
+                resultsModal.classList.add('hidden');
+                return;
+            }
+
+            const searchableElements = document.querySelectorAll('main p, main li, main h2, main h3');
+            let matches = [];
+
+            searchableElements.forEach((el, index) => {
+                const text = el.innerText;
+                if (text.toLowerCase().includes(query)) {
+                    matches.push({
+                        text: text.substring(0, 140) + '...',
+                        element: el
+                    });
+                }
+            });
+
+            searchCount.innerText = matches.length;
+            resultsList.innerHTML = '';
+
+            if (matches.length === 0) {
+                resultsList.innerHTML = '<div class="p-2 text-slate-500">Aucun résultat trouvé pour cette requête.</div>';
+            } else {
+                matches.slice(0, 5).forEach(m => {
+                    const div = document.createElement('div');
+                    div.className = 'p-2 bg-white rounded border border-amber-200 cursor-pointer hover:bg-amber-100 transition';
+                    div.innerHTML = m.text;
+                    div.onclick = () => {
+                        m.element.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                        m.element.classList.add('bg-amber-200');
+                        setTimeout(() => m.element.classList.remove('bg-amber-200'), 2000);
+                    };
+                    resultsList.appendChild(div);
+                });
+            }
+
+            resultsModal.classList.remove('hidden');
+        }
+
+        function closeSearchResults() {
+            document.getElementById('searchResultsModal').classList.add('hidden');
+            document.getElementById('globalSearch').value = '';
+        }
+
+        // Module 1 Graphique Confiance
+        function initOverviewTrustChart() {
+            const ctx = document.getElementById('overviewTrustChart').getContext('2d');
+            overviewTrustChartInstance = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: ['Belgique (Global)', 'Wallonie', 'Flandre'],
+                    datasets: [{
+                        label: 'Confiance Politique Générale (%)',
+                        data: [40.5, 33.2, 44.4],
+                        backgroundColor: ['#2563eb', '#be123c', '#d97706'],
+                        borderRadius: 6
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            max: 100,
+                            ticks: { callback: value => value + '%' }
+                        }
+                    },
+                    plugins: {
+                        legend: { display: false }
+                    }
+                }
+            });
+        }
+
+        // Module Financement Partis (Chart & Table)
+        function initFinanceChart() {
+            const ctx = document.getElementById('financeChart').getContext('2d');
+            financeChartInstance = new Chart(ctx, {
+                type: 'bar',
+                data: getFinanceChartData('total'),
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                callback: function(value) {
+                                    const type = document.getElementById('chartTypeSelect').value;
+                                    return type === 'total' ? value + ' M€' : value + ' %';
+                                }
+                            }
+                        },
+                        x: {
+                            ticks: {
+                                callback: function(val, index) {
+                                    return this.getLabelForValue(index);
+                                }
+                            }
+                        }
+                    },
+                    plugins: {
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    const party = partiesData[context.dataIndex];
+                                    const type = document.getElementById('chartTypeSelect').value;
+                                    if (type === 'total') {
+                                        return `${party.name}: ${party.total} M€ (Subventions: ${party.subsidies}%)`;
+                                    }
+                                    return `${party.name}: ${context.raw}%`;
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+
+            populatePartyTable(partiesData);
+        }
+
+        function getFinanceChartData(metric) {
+            const labels = partiesData.map(p => p.name);
+            let data = [];
+            let labelName = "";
+            let colors = [];
+
+            if (metric === 'total') {
+                data = partiesData.map(p => p.total);
+                labelName = "Revenus Totaux (Millions €)";
+                colors = partiesData.map(() => '#2563eb');
+            } else if (metric === 'subsidies') {
+                data = partiesData.map(p => p.subsidies);
+                labelName = "Subventions Directes (%)";
+                colors = partiesData.map(() => '#047857');
+            } else if (metric === 'mandataires') {
+                data = partiesData.map(p => p.mandataires);
+                labelName = "Contributions Mandataires (%)";
+                colors = partiesData.map(() => '#d97706');
+            } else if (metric === 'members') {
+                data = partiesData.map(p => p.members);
+                labelName = "Cotisations Membres (%)";
+                colors = partiesData.map(() => '#be123c');
+            }
+
+            return {
+                labels: labels,
+                datasets: [{
+                    label: labelName,
+                    data: data,
+                    backgroundColor: colors,
+                    borderRadius: 6
+                }]
+            };
+        }
+
+        function updateFinanceChart() {
+            const metric = document.getElementById('chartTypeSelect').value;
+            const titleMap = {
+                'total': 'Revenus Totaux des Partis Politiques Belges (2024)',
+                'subsidies': 'Proportion des Subventions Directes de l\'État dans les Revenus (%)',
+                'mandataires': 'Proportion des Contributions des Mandataires (%)',
+                'members': 'Proportion des Cotisations Directes des Membres (%)'
+            };
+            document.getElementById('financeChartTitle').innerText = titleMap[metric];
+            financeChartInstance.data = getFinanceChartData(metric);
+            financeChartInstance.update();
+        }
+
+        // Tableau des Partis (Remplissage, Filtre, Tri)
+        function populatePartyTable(data) {
+            const tbody = document.getElementById('partyTableBody');
+            tbody.innerHTML = '';
+            data.forEach(p => {
+                const tr = document.createElement('tr');
+                tr.className = "hover:bg-slate-50 transition";
+                tr.innerHTML = `
+                    <td class="p-3 font-bold text-slate-900">${p.name}</td>
+                    <td class="p-3 text-right font-semibold text-blue-700">${p.total} M€</td>
+                    <td class="p-3 text-right">${p.subsidies} %</td>
+                    <td class="p-3 text-right">${p.mandataires} %</td>
+                    <td class="p-3 text-right ${p.members > 5 ? 'font-bold text-emerald-700' : ''}">${p.members} %</td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        function filterPartyTable() {
+            const query = document.getElementById('partyTableFilter').value.toLowerCase();
+            const filtered = partiesData.filter(p => p.name.toLowerCase().includes(query));
+            populatePartyTable(filtered);
+        }
+
+        let sortDirection = false;
+        function sortPartyTable(colIndex) {
+            sortDirection = !sortDirection;
+            const keys = ['name', 'total', 'subsidies', 'mandataires', 'members'];
+            const key = keys[colIndex];
+
+            const sorted = [...partiesData].sort((a, b) => {
+                if (a[key] < b[key]) return sortDirection ? -1 : 1;
+                if (a[key] > b[key]) return sortDirection ? 1 : -1;
+                return 0;
+            });
+            populatePartyTable(sorted);
+        }
+
+        // Module Élections d'Octobre 2024 (Chart)
+        function initTurnoutChart() {
+            const ctx = document.getElementById('turnoutChart').getContext('2d');
+            turnoutChartInstance = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Votants (63.5%)', 'Abstentionnistes (36.5%)'],
+                    datasets: [{
+                        data: [63.5, 36.5],
+                        backgroundColor: ['#2563eb', '#be123c'],
+                        borderWidth: 2
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    return context.label === 'Votants (63.5%)' 
+                                        ? '3 200 000 électeurs ayant voté' 
+                                        : '1 800 000 électeurs absents (Zijlijnzondag)';
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        // Interrupteur du Cordon Sanitaire
+        function setCordonRegion(region) {
+            const displayArea = document.getElementById('cordonDisplayArea');
+            const btnSouth = document.getElementById('btn-cordon-south');
+            const btnNorth = document.getElementById('btn-cordon-north');
+
+            if (region === 'south') {
+                btnSouth.className = "px-4 py-2 rounded-lg text-xs font-bold bg-blue-600 text-white shadow-sm";
+                btnNorth.className = "px-4 py-2 rounded-lg text-xs font-bold bg-slate-100 text-slate-700 hover:bg-slate-200";
+
+                displayArea.innerHTML = `
+                    <div class="p-4 bg-slate-50 border border-slate-200 rounded-xl space-y-2 text-xs">
+                        <div class="font-bold text-slate-900 text-sm flex items-center">
+                            <span class="mr-2">🏛️</span> Cordon Politique (Applicable)
+                        </div>
+                        <p class="text-slate-600">
+                            Refus absolu et unanime de toute alliance, coalition ou accord de majorité avec l'extrême droite, du niveau local au niveau fédéral.
+                        </p>
+                    </div>
+                    <div class="p-4 bg-rose-50 border border-rose-200 rounded-xl space-y-2 text-xs text-rose-950">
+                        <div class="font-bold text-sm flex items-center">
+                            <span class="mr-2">📺</span> Cordon Médiatique (Strict & Exclusif)
+                        </div>
+                        <p>
+                            En vertu du Pacte Culturel (1973) et des directives AJP/CDJ, <strong>aucun direct</strong> n'est accordé à l'extrême droite. Les interviews sont enregistrées en différé et systématiquement remises en contexte critique par les journalistes.
+                        </p>
+                    </div>
+                `;
+            } else {
+                btnNorth.className = "px-4 py-2 rounded-lg text-xs font-bold bg-blue-600 text-white shadow-sm";
+                btnSouth.className = "px-4 py-2 rounded-lg text-xs font-bold bg-slate-100 text-slate-700 hover:bg-slate-200";
+
+                displayArea.innerHTML = `
+                    <div class="p-4 bg-slate-50 border border-slate-200 rounded-xl space-y-2 text-xs">
+                        <div class="font-bold text-slate-900 text-sm flex items-center">
+                            <span class="mr-2">🏛️</span> Cordon Politique (Sous Pression)
+                        </div>
+                        <p class="text-slate-600">
+                            Engagement officiel d'exclusion des coalitions maintenu par les partis démocratiques, bien que contesté par le Vlaams Belang à l'échelon local.
+                        </p>
+                    </div>
+                    <div class="p-4 bg-amber-50 border border-amber-200 rounded-xl space-y-2 text-xs text-amber-950">
+                        <div class="font-bold text-sm flex items-center">
+                            <span class="mr-2">📻</span> Cordon Médiatique (INEXISTANT en Flandre)
+                        </div>
+                        <p>
+                            Les médias flamands (VRT, VTM) refusent le cordon médiatique au nom de la neutralité journalistique. Le Vlaams Belang est invité sur les plateaux TV normaux. Cette normalisation contraint les partis traditionnels à intégrer ses thèmes sur la sécurité et l'immigration.
+                        </p>
+                    </div>
+                `;
+            }
+        }
+
+        // Initialisations au chargement complet du DOM
+        window.addEventListener('DOMContentLoaded', () => {
+            initOverviewTrustChart();
+            setCordonRegion('south');
+        });
+    </script>
+</body>
+</html>
