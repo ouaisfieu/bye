@@ -1,0 +1,607 @@
+<!DOCTYPE html>
+<html lang="fr" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Résumé Audio & Podcast - L'Exercice Démocratique en Belgique</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        studio: {
+                            50: '#f5f3ff',
+                            100: '#ede9fe',
+                            600: '#7c3aed',
+                            700: '#6d28d9',
+                            800: '#5b21b6',
+                            900: '#4c1d95',
+                        },
+                        civic: {
+                            bg: '#f8fafc',
+                            dark: '#0f172a',
+                            muted: '#64748b',
+                            accent: '#2563eb'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+        .transcript-paragraph { transition: all 0.2s ease-in-out; }
+        .transcript-paragraph.active-speech {
+            background-color: #f0fdf4;
+            border-left-color: #16a34a;
+            color: #0f172a;
+            font-weight: 500;
+        }
+    </style>
+</head>
+<body class="bg-civic-bg text-slate-800 font-sans antialiased min-h-screen flex flex-col">
+
+    <!-- Chosen Palette: Slate & Studio Violet (Slate #0f172a, Royal Blue #2563eb, Audio Accent Violet #7c3aed, Neutral Background #f8fafc) -->
+
+    <!-- Application Structure Plan:
+        1. Studio Audio Header: Présentation du module "Podcast & Résumé Vocal", sélecteur de voix synthèse vocale, statut de lecture et visualiseur Canvas réactif.
+        2. Barre de Contrôle Audio Fixe/Permanente: Boutons Lecture/Pause, Précédent/Suivant, Vitesse de lecture (0.8x, 1x, 1.25x, 1.5x), Barre de progression du script, Sélecteur de Chapitre.
+        3. Double Panneau Interactif:
+            - Panneau Gauche : Sommaire interactif par chapitres horodatés & Fiches synthétiques d'enjeux.
+            - Panneau Droit : Transcription intégrale dynamique du résumé audio, réactive au clic (lecture directe de la section cliquée) et avec surbrillance au fil du discours.
+        4. Module d'exportation / Récapitulatif exécutif à imprimer ou copier.
+    -->
+
+    <!-- Visualization & Content Choices:
+        - Audio Visualizer -> HTML5 Canvas réactif simulant des barres de fréquence audio animées en JS pendant la parole.
+        - Synthèse Vocale -> Web Speech API (window.speechSynthesis) native en JS pour un rendu audio instantané sans dépendance externe.
+        - Synchronisation Texte/Audio -> Découpage du script en paragraphes structurés avec id et gestionnaires d'événements pour le saut de chapitre direct.
+        - NO SVG / NO Mermaid JS utilisés.
+    -->
+
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+
+    <!-- En-tête du Studio Audio -->
+    <header class="bg-slate-900 text-white border-b border-slate-800 sticky top-0 z-50 shadow-lg">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3">
+            <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                
+                <!-- Titre & Badge -->
+                <div class="flex items-center space-x-3">
+                    <div class="w-10 h-10 rounded-xl bg-violet-600 flex items-center justify-center text-white font-bold text-xl shadow-md">
+                        🎙️
+                    </div>
+                    <div>
+                        <div class="flex items-center space-x-2">
+                            <span class="text-xs bg-violet-500/20 text-violet-300 border border-violet-500/30 px-2 py-0.5 rounded-full font-semibold">Audio Summary</span>
+                            <span class="text-xs text-slate-400">Durée estimée : ~10 min</span>
+                        </div>
+                        <h1 class="text-base sm:text-lg font-bold text-white leading-tight">L'Exercice Démocratique en Belgique : Synthèse Audio</h1>
+                    </div>
+                </div>
+
+                <!-- Paramètres de Synthèse Vocale -->
+                <div class="flex flex-wrap items-center gap-3 text-xs bg-slate-800/80 p-2 rounded-xl border border-slate-700">
+                    <div class="flex items-center space-x-1">
+                        <span class="text-slate-400">🗣️ Voix :</span>
+                        <select id="voiceSelect" class="bg-slate-900 text-white border border-slate-700 rounded px-2 py-1 focus:outline-none max-w-[180px]">
+                            <option value="">Chargement des voix FR...</option>
+                        </select>
+                    </div>
+
+                    <div class="flex items-center space-x-1">
+                        <span class="text-slate-400">⚡ Vitesse :</span>
+                        <select id="rateSelect" onchange="changeRate()" class="bg-slate-900 text-white border border-slate-700 rounded px-2 py-1 focus:outline-none">
+                            <option value="0.85">0.85x</option>
+                            <option value="1" selected>1.0x</option>
+                            <option value="1.2">1.2x</option>
+                            <option value="1.4">1.4x</option>
+                        </select>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </header>
+
+    <!-- Conteneur Principal -->
+    <main class="flex-grow max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6">
+
+        <!-- Banner d'Information & Visualiseur Audio Canvas -->
+        <div class="bg-gradient-to-r from-slate-900 via-violet-950 to-slate-900 rounded-2xl p-6 text-white shadow-md border border-slate-800 flex flex-col md:flex-row items-center justify-between gap-6">
+            <div class="space-y-2 max-w-2xl">
+                <span class="inline-block bg-emerald-500/20 text-emerald-300 text-xs px-2.5 py-1 rounded-full font-medium border border-emerald-500/30">
+                    🎧 Lecteur Interactif Immersif
+                </span>
+                <h2 class="text-xl sm:text-2xl font-extrabold tracking-tight">Résumé Synthétique & Analyse Orientée Décideurs</h2>
+                <p class="text-xs sm:text-sm text-slate-300 leading-relaxed">
+                    Écoutez le condensé analytique du rapport sur le modèle consociatif belge, la particratie, le financement des partis, le choc électoral d'octobre 2024 et les innovations délibératives. Cliquez sur n'importe quel chapitre ou paragraphe pour démarrer l'écoute ciblée.
+                </p>
+            </div>
+
+            <!-- Canvas Visualiseur de Fréquence Audio -->
+            <div class="flex flex-col items-center bg-slate-900/80 p-4 rounded-xl border border-violet-900/50 w-full md:w-64">
+                <span class="text-[11px] text-violet-300 font-mono mb-2 uppercase tracking-wider" id="audioStatusText">Prêt à la lecture</span>
+                <canvas id="visualizerCanvas" width="200" height="48" class="w-full h-12 bg-slate-950 rounded border border-slate-800"></canvas>
+            </div>
+        </div>
+
+        <!-- BARRE DE LECTURE AUDIO PERMANENTE -->
+        <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-md sticky top-20 z-40 flex flex-col sm:flex-row items-center justify-between gap-4">
+            
+            <!-- Boutons de Contrôle -->
+            <div class="flex items-center space-x-3 w-full sm:w-auto justify-center">
+                <button onclick="prevChapter()" title="Chapitre précédent" class="p-2 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 transition">
+                    ⏮️
+                </button>
+                <button id="playBtn" onclick="togglePlayPause()" class="px-5 py-2.5 rounded-xl bg-violet-600 hover:bg-violet-700 text-white font-bold text-sm shadow-sm transition flex items-center space-x-2">
+                    <span id="playBtnIcon">▶</span>
+                    <span id="playBtnText">Écouter le Résumé</span>
+                </button>
+                <button onclick="stopAudio()" title="Arrêter la lecture" class="p-2 rounded-lg bg-rose-50 hover:bg-rose-100 text-rose-700 transition">
+                    ⏹️
+                </button>
+                <button onclick="nextChapter()" title="Chapitre suivant" class="p-2 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 transition">
+                    ⏭️
+                </button>
+            </div>
+
+            <!-- Progression & Chapitre Courant -->
+            <div class="flex-grow w-full space-y-1">
+                <div class="flex justify-between text-xs font-semibold text-slate-600">
+                    <span id="currentChapterTitle">Chapitre 1 : Introduction & Le Paradoxe Belge</span>
+                    <span id="chapterProgressText">1 / 8</span>
+                </div>
+                <div class="w-full bg-slate-100 rounded-full h-2.5 overflow-hidden">
+                    <div id="progressBar" class="bg-violet-600 h-2.5 rounded-full transition-all duration-300" style="width: 12.5%"></div>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- GRILLE PRINCIPALE : CHAPITRES (GAUCHE) & TRANSCRIPTION (DROITE) -->
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+            
+            <!-- Sommaire des Chapitres & Enjeux (4 Colonnes) -->
+            <div class="lg:col-span-4 space-y-4">
+                <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
+                    <h3 class="font-bold text-slate-900 text-sm mb-3 flex items-center justify-between">
+                        <span>📚 Chapitres du Résumé</span>
+                        <span class="text-[11px] bg-slate-100 text-slate-600 px-2 py-0.5 rounded-full">8 Modules</span>
+                    </h3>
+                    <div class="space-y-2 text-xs" id="chapterList">
+                        <!-- Rempli en JS -->
+                    </div>
+                </div>
+
+                <!-- Carte d'Indicateur Clé -->
+                <div class="bg-amber-50 border border-amber-200 p-4 rounded-2xl text-amber-950 space-y-2">
+                    <div class="font-bold text-xs uppercase tracking-wider text-amber-800">💡 Chiffre Clé du Rapport</div>
+                    <div class="text-2xl font-black text-amber-900">83,7 M€</div>
+                    <p class="text-xs leading-relaxed">
+                        C'est le montant total des dotations publiques versées aux partis politiques belges en 2024, représentant près de 80% de leurs revenus.
+                    </p>
+                </div>
+            </div>
+
+            <!-- Transcription Synchronisée (8 Colonnes) -->
+            <div class="lg:col-span-8 space-y-4">
+                <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm">
+                    <div class="flex items-center justify-between border-b border-slate-200 pb-4 mb-4">
+                        <div>
+                            <h3 class="font-bold text-slate-900 text-base">Transcription Intégrale</h3>
+                            <p class="text-xs text-slate-500">Cliquez sur un paragraphe pour démarrer la lecture vocale à partir de cet endroit.</p>
+                        </div>
+                        <button onclick="copyTranscript()" class="text-xs bg-slate-100 hover:bg-slate-200 text-slate-700 px-3 py-1.5 rounded-lg transition font-medium flex items-center space-x-1">
+                            <span>📋</span> <span>Copier le texte</span>
+                        </button>
+                    </div>
+
+                    <!-- Zone des Paragraphes de Transcription -->
+                    <div class="space-y-4 text-xs sm:text-sm text-slate-700 leading-relaxed max-h-[600px] overflow-y-auto pr-2 no-scrollbar" id="transcriptContainer">
+                        <!-- Généré en JS -->
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- Section Fiches Exécutives de Synthèse -->
+        <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-4">
+            <h3 class="font-bold text-slate-900 text-base">📌 Synthese des 4 Piliers du Rapport</h3>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 text-xs">
+                
+                <div class="p-4 bg-slate-50 rounded-xl border border-slate-200 space-y-1.5">
+                    <div class="font-bold text-blue-700 text-sm">1. Modèle Consociatif</div>
+                    <p class="text-slate-600">
+                        Basé sur la recherche permanente de compromis et la protection des minorités (Sonnette d'Alarme, parité linguistique), mais qui déplace le débat hors du Parlement vers des cabinets fermés.
+                    </p>
+                </div>
+
+                <div class="p-4 bg-slate-50 rounded-xl border border-slate-200 space-y-1.5">
+                    <div class="font-bold text-violet-700 text-sm">2. Empire Particratique</div>
+                    <p class="text-slate-600">
+                        Les présidents de partis monopolisent le pouvoir. La théorie du "Cartel Party" montre une capture quasi totale des ressources publiques (83,7 M€) par des agences devenues d'État.
+                    </p>
+                </div>
+
+                <div class="p-4 bg-slate-50 rounded-xl border border-slate-200 space-y-1.5">
+                    <div class="font-bold text-rose-700 text-sm">3. Choc d'Octobre 2024</div>
+                    <p class="text-slate-600">
+                        L'abolition de l'obligation de vote en Flandre a entraîné un taux d'abstention historique (36,5%, soit 1,8 million d'électeurs absents), affaiblissant la représentativité populaire.
+                    </p>
+                </div>
+
+                <div class="p-4 bg-slate-50 rounded-xl border border-slate-200 space-y-1.5">
+                    <div class="font-bold text-emerald-700 text-sm">4. Pistes Délibératives</div>
+                    <p class="text-slate-600">
+                        Le tirage au sort (Ostbelgien et Commissions Bruxelloises) offre une alternative prometteuse, à condition de ne pas devenir une simple caution morale sans véritable pouvoir décisionnel.
+                    </p>
+                </div>
+
+            </div>
+        </div>
+
+    </main>
+
+    <!-- Pied de Page -->
+    <footer class="bg-slate-900 text-slate-400 text-xs py-6 border-t border-slate-800 mt-8">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center sm:text-left flex flex-col sm:flex-row justify-between items-center gap-2">
+            <p>© 2026 Studio Synthèse Démocratie Belge - Basé sur les rapports d'analyse institutionnelle et données KU Leuven / IWEPS.</p>
+            <p class="text-slate-500">Propulsé par la technologie Web Speech API native.</p>
+        </div>
+    </footer>
+
+    <!-- LOGIQUE JAVASCRIPT EXCLUSIVEMENT VANILLA -->
+    <script>
+        // Script audio découpé en 8 chapitres thématiques
+        const audioChapters = [
+            {
+                id: 0,
+                title: "Chapitre 1 : Introduction & Le Paradoxe Belge",
+                duration: "01:15",
+                text: "Bienvenue dans cette synthèse audio consacrée à l'analyse critique de la démocratie belge. La Belgique s'érige comme un laboratoire politique d'une complexité sans pareille en Europe occidentale, souvent qualifié de régime de crise permanente. L'analyse révèle un paradoxe central : alors que ses institutions visent la pacification des clivages linguistiques et philosophiques, elles engendrent aujourd'hui une paralysie décisionnelle, une opacité du pouvoir et un désenchantement citoyenne mesurable."
+            },
+            {
+                id: 1,
+                title: "Chapitre 2 : Modèle Consociatif & Fédéralisme Centrifuge",
+                duration: "01:30",
+                text: "Selon le politologue Arend Lijphart, la Belgique est l'exemple le plus parfait de démocratie consociative. Ce modèle repose sur quatre piliers : de grandes coalitions multipartites, le compromis systématique à huis clos, la proportionnalité des ressources et un droit de veto mutuel pour les minorités, incarné par la Sonnette d'Alarme constitutionnelle. Toutefois, ce système étouffe le débat parlementaire ouvert et renforce le fédéralisme centrifuge où l'absence de hiérarchie entre l'État fédéral et les Régions crée des conflits permanents."
+            },
+            {
+                id: 2,
+                title: "Chapitre 3 : Rigidité Constitutionnelle & Article 195",
+                duration: "01:15",
+                text: "L'incapacité du système étatique belge à se réformer de façon fluide s'explique par l'Article 195 de la Constitution. Qualifié par la Commission de Venise comme l'un des dispositifs les plus rigides au monde, il exige une déclaration de révision, la dissolution automatique du Parlement et un vote à la majorité des deux tiers. Cette lourdeur pousse les partis à négocier de vastes paquets institutionnels lors des crises de formation de gouvernement."
+            },
+            {
+                id: 3,
+                title: "Chapitre 4 : Particratie & La Thèse du Cartel Party",
+                duration: "01:25",
+                text: "Au cœur du dysfonctionnement belge se trouve la particratie : les présidents de partis monopolisent la décision publique, réduisant le Parlement à une chambre de ratification. Selon la théorie du Cartel Party de Katz et Mair, les partis se sont transformés en agences d'État dépendantes des ressources publiques pour assurer leur survie. Ce pouvoir s'appuie sur une élite invisible de collaborateurs non élus, les staffers, qui rédigent les lois et verrouillent la ligne politique."
+            },
+            {
+                id: 4,
+                title: "Chapitre 5 : Économie Politique & Financement des Partis",
+                duration: "01:30",
+                text: "En 2024, les partis belges ont perçu 83,7 millions d'euros de dotations publiques directes, représentant en moyenne 77 % à 90 % de leurs revenus. Les cotisations des membres ne comptent plus que pour 3,9 %. Cette rente d'État a permis aux partis d'accumuler un patrimoine net de plus de 156 millions d'euros, dominé par la N-VA avec 26,3 millions d'euros. Les partis dépensent entre 17% et 35% de leur budget en publicité sur les réseaux sociaux pour cibler directement les électeurs."
+            },
+            {
+                id: 5,
+                title: "Chapitre 6 : Fracture Électorale & Octobre 2024",
+                duration: "01:20",
+                text: "Lors des élections locales d'octobre 2024, la Flandre a aboli pour la première fois l'obligation de vote. Le résultat a été un séisme : le taux de participation est tombé à 63,5 %, laissant 1,8 million d'électeurs sur le touche. Ce désengagement touche particulièrement les classes populaires, risquant d'altérer la représentativité. En revanche, le scrutin a vu une hausse inattendue de l'élection de femmes dans les conseils communaux, atteignant 41,7 %."
+            },
+            {
+                id: 6,
+                title: "Chapitre 7 : Cordon Sanitaire & Réseaux Sociaux",
+                duration: "01:10",
+                text: "Né après le Dimanche Noir de 1991, le cordon sanitaire vise à isoler l'extrême droite. Si le cordon politique est maintenu au Nord et au Sud, le cordon médiatique est une exclusivité francophone qui interdit le direct aux discours extrêmes. Cependant, cette digue traditionnelle est contournée par les plateformes numériques comme Facebook, où des formations marginales génèrent un engagement dix fois supérieur aux partis traditionnels."
+            },
+            {
+                id: 7,
+                title: "Chapitre 8 : Innovations Délibératives & Tirage au Sort",
+                duration: "01:15",
+                text: "Pour réinventer la démocratie, la Belgique expérimente le tirage au sort. Ostbelgien a créé en 2019 le Bürgerrat, un Conseil Citoyen permanent de 24 membres doté d'un pouvoir d'agenda. À Bruxelles, les Commissions Délibératives réunissent citoyens tirés au sort et députés. Ces mini-publics apportent un souffle nouveau, mais ne doivent pas servir de simple caution morale pour dédouaner les élites politiques."
+            }
+        ];
+
+        // État de l'Application Audio
+        let currentChapterIndex = 0;
+        let isPlaying = false;
+        let synth = window.speechSynthesis;
+        let currentUtterance = null;
+        let animationFrameId = null;
+        let availableVoices = [];
+
+        // Éléments du DOM
+        const playBtn = document.getElementById('playBtn');
+        const playBtnIcon = document.getElementById('playBtnIcon');
+        const playBtnText = document.getElementById('playBtnText');
+        const progressBar = document.getElementById('progressBar');
+        const currentChapterTitle = document.getElementById('currentChapterTitle');
+        const chapterProgressText = document.getElementById('chapterProgressText');
+        const voiceSelect = document.getElementById('voiceSelect');
+        const rateSelect = document.getElementById('rateSelect');
+        const audioStatusText = document.getElementById('audioStatusText');
+        const canvas = document.getElementById('visualizerCanvas');
+        const ctx = canvas.getContext('2d');
+
+        // Charger et filtrer les voix de synthèse vocale en Français
+        function loadVoices() {
+            availableVoices = synth.getVoices().filter(v => v.lang.startsWith('fr'));
+            voiceSelect.innerHTML = '';
+            
+            if (availableVoices.length === 0) {
+                // Fallback si aucune voix spécifique FR
+                availableVoices = synth.getVoices();
+            }
+
+            availableVoices.forEach((voice, index) => {
+                const option = document.createElement('option');
+                option.value = index;
+                option.textContent = `${voice.name} (${voice.lang})`;
+                if (voice.default || voice.lang === 'fr-FR' || voice.lang === 'fr_FR') {
+                    option.selected = true;
+                }
+                voiceSelect.appendChild(option);
+            });
+        }
+
+        if (speechSynthesis.onvoiceschanged !== undefined) {
+            speechSynthesis.onvoiceschanged = loadVoices;
+        }
+
+        // Générer le Sommaire et la Transcription
+        function renderContent() {
+            const chapterListEl = document.getElementById('chapterList');
+            const transcriptContainerEl = document.getElementById('transcriptContainer');
+
+            chapterListEl.innerHTML = '';
+            transcriptContainerEl.innerHTML = '';
+
+            audioChapters.forEach((ch, idx) => {
+                // Élément du Sommaire
+                const item = document.createElement('div');
+                item.className = `p-3 rounded-xl border cursor-pointer transition flex items-center justify-between ${idx === currentChapterIndex ? 'bg-violet-50 border-violet-300 font-semibold text-violet-900' : 'bg-slate-50 border-slate-200 hover:bg-slate-100 text-slate-700'}`;
+                item.onclick = () => jumpToChapter(idx);
+                item.innerHTML = `
+                    <div class="flex items-center space-x-2">
+                        <span class="w-5 h-5 rounded-full bg-slate-200 text-slate-700 flex items-center justify-center text-[10px] font-bold">${idx + 1}</span>
+                        <span class="truncate max-w-[180px]">${ch.title.split(':')[1] || ch.title}</span>
+                    </div>
+                    <span class="text-[10px] font-mono text-slate-400">${ch.duration}</span>
+                `;
+                chapterListEl.appendChild(item);
+
+                // Élément de la Transcription
+                const p = document.createElement('div');
+                p.id = `para-${idx}`;
+                p.className = `p-4 rounded-xl border-l-4 border-transparent hover:bg-slate-50 cursor-pointer transcript-paragraph ${idx === currentChapterIndex ? 'active-speech' : 'border-slate-200'}`;
+                p.onclick = () => jumpToChapter(idx);
+                p.innerHTML = `
+                    <div class="flex items-center justify-between text-xs font-bold text-slate-500 mb-1">
+                        <span>${ch.title}</span>
+                        <span class="font-mono text-[11px] text-violet-600">▶ Écouter cette section</span>
+                    </div>
+                    <p class="text-slate-800 leading-relaxed">${ch.text}</p>
+                `;
+                transcriptContainerEl.appendChild(p);
+            });
+
+            updateProgressUI();
+        }
+
+        function updateProgressUI() {
+            const ch = audioChapters[currentChapterIndex];
+            currentChapterTitle.innerText = ch.title;
+            chapterProgressText.innerText = `${currentChapterIndex + 1} / ${audioChapters.length}`;
+            const pct = ((currentChapterIndex + 1) / audioChapters.length) * 100;
+            progressBar.style.width = `${pct}%`;
+
+            // Mettre à jour la surbrillance dans la transcription
+            document.querySelectorAll('.transcript-paragraph').forEach((el, idx) => {
+                if (idx === currentChapterIndex) {
+                    el.classList.add('active-speech');
+                    el.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+                } else {
+                    el.classList.remove('active-speech');
+                }
+            });
+        }
+
+        // Toggle Lecture / Pause
+        function togglePlayPause() {
+            if (isPlaying) {
+                pauseSpeech();
+            } else {
+                playSpeech();
+            }
+        }
+
+        function playSpeech() {
+            if (synth.speaking && synth.paused) {
+                synth.resume();
+                isPlaying = true;
+                updatePlayStateUI(true);
+                startVisualizer();
+                return;
+            }
+
+            synth.cancel(); // Réinitialiser tout discours en cours
+
+            const ch = audioChapters[currentChapterIndex];
+            currentUtterance = new SpeechSynthesisUtterance(ch.text);
+            
+            // Sélection de la voix
+            const selectedVoiceIdx = voiceSelect.value;
+            if (availableVoices[selectedVoiceIdx]) {
+                currentUtterance.voice = availableVoices[selectedVoiceIdx];
+            }
+
+            currentUtterance.rate = parseFloat(rateSelect.value) || 1.0;
+
+            currentUtterance.onstart = () => {
+                isPlaying = true;
+                updatePlayStateUI(true);
+                startVisualizer();
+            };
+
+            currentUtterance.onend = () => {
+                if (currentChapterIndex < audioChapters.length - 1) {
+                    currentChapterIndex++;
+                    renderContent();
+                    playSpeech();
+                } else {
+                    stopAudio();
+                }
+            };
+
+            currentUtterance.onerror = () => {
+                stopAudio();
+            };
+
+            synth.speak(currentUtterance);
+        }
+
+        function pauseSpeech() {
+            if (synth.speaking) {
+                synth.pause();
+                isPlaying = false;
+                updatePlayStateUI(false);
+                stopVisualizer();
+            }
+        }
+
+        function stopAudio() {
+            synth.cancel();
+            isPlaying = false;
+            updatePlayStateUI(false);
+            stopVisualizer();
+        }
+
+        function jumpToChapter(idx) {
+            stopAudio();
+            currentChapterIndex = idx;
+            renderContent();
+            playSpeech();
+        }
+
+        function nextChapter() {
+            if (currentChapterIndex < audioChapters.length - 1) {
+                jumpToChapter(currentChapterIndex + 1);
+            }
+        }
+
+        function prevChapter() {
+            if (currentChapterIndex > 0) {
+                jumpToChapter(currentChapterIndex - 1);
+            }
+        }
+
+        function changeRate() {
+            if (isPlaying) {
+                jumpToChapter(currentChapterIndex);
+            }
+        }
+
+        function updatePlayStateUI(playing) {
+            if (playing) {
+                playBtnIcon.innerText = "⏸";
+                playBtnText.innerText = "Mettre en Pause";
+                playBtn.className = "px-5 py-2.5 rounded-xl bg-amber-600 hover:bg-amber-700 text-white font-bold text-sm shadow-sm transition flex items-center space-x-2";
+                audioStatusText.innerText = "🎙️ Lecture en cours...";
+                audioStatusText.className = "text-[11px] text-emerald-400 font-mono mb-2 uppercase tracking-wider animate-pulse";
+            } else {
+                playBtnIcon.innerText = "▶";
+                playBtnText.innerText = "Reprendre l'Écoute";
+                playBtn.className = "px-5 py-2.5 rounded-xl bg-violet-600 hover:bg-violet-700 text-white font-bold text-sm shadow-sm transition flex items-center space-x-2";
+                audioStatusText.innerText = "En Pause";
+                audioStatusText.className = "text-[11px] text-violet-300 font-mono mb-2 uppercase tracking-wider";
+            }
+        }
+
+        // Animation Canvas pour le Visualiseur Audio
+        function startVisualizer() {
+            if (!animationFrameId) {
+                drawVisualizer();
+            }
+        }
+
+        function stopVisualizer() {
+            if (animationFrameId) {
+                cancelAnimationFrame(animationFrameId);
+                animationFrameId = null;
+            }
+            // Réinitialiser le canvas à zéro
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            drawStaticBars();
+        }
+
+        function drawVisualizer() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            const numBars = 20;
+            const barWidth = canvas.width / numBars - 2;
+
+            for (let i = 0; i < numBars; i++) {
+                const barHeight = isPlaying ? Math.random() * (canvas.height - 8) + 6 : 4;
+                const x = i * (barWidth + 2);
+                const y = canvas.height - barHeight;
+
+                const gradient = ctx.createLinearGradient(0, canvas.height, 0, 0);
+                gradient.addColorStop(0, '#7c3aed');
+                gradient.addColorStop(1, '#10b981');
+
+                ctx.fillStyle = gradient;
+                ctx.fillRect(x, y, barWidth, barHeight);
+            }
+
+            if (isPlaying) {
+                animationFrameId = requestAnimationFrame(drawVisualizer);
+            }
+        }
+
+        function drawStaticBars() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            const numBars = 20;
+            const barWidth = canvas.width / numBars - 2;
+            ctx.fillStyle = '#334155';
+
+            for (let i = 0; i < numBars; i++) {
+                const barHeight = 4;
+                const x = i * (barWidth + 2);
+                const y = canvas.height - barHeight;
+                ctx.fillRect(x, y, barWidth, barHeight);
+            }
+        }
+
+        // Copier la transcription
+        function copyTranscript() {
+            const fullText = audioChapters.map(ch => `${ch.title}\n${ch.text}\n`).join('\n');
+            navigator.clipboard.writeText(fullText).then(() => {
+                alert("La transcription intégrale a été copiée dans votre presse-papiers !");
+            });
+        }
+
+        // Initialisation globale au chargement du DOM
+        window.addEventListener('DOMContentLoaded', () => {
+            loadVoices();
+            renderContent();
+            drawStaticBars();
+        });
+    </script>
+</body>
+</html>
+```
+
+### Synthèse des Fonctionnalités de l'Application Audio
+
+1. **Lecteur Audio Synthétique Dynamique** : Utilise la *Web Speech API* native (`speechSynthesis`) pour lire l'intégralité du résumé en français sans dépendance serveur.
+2. **Double Mode de Navigation** :
+   - **Par Chapitres** : Sommaire horodaté permettant de sauter directement à un thème (Consociativisme, Particratie, Financement des partis, Élections d'Octobre 2024, Cordon Sanitaire, Tirage au sort).
+   - **Par la Transcription** : Cliquez directement sur n'importe quel paragraphe du texte pour démarrer la lecture vocale au point exact désiré.
+3. **Studio de Contrôle Avancé** : Réglage du débit de paroles (0.85x, 1x, 1.2x, 1.4x), sélecteur de voix francophones de l'appareil et visualiseur réactif sur Canvas.
+4. **Fiches de Synthèse & Exportation** : Récapitulatif visuel des 4 piliers du rapport et bouton de copie intégrale de la transcription.
